@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import * as dotenv from 'dotenv';
-import { User } from '../schema/user.schema';
+import { User } from './schema/user.schema';
 import { Model } from 'mongoose';
 import { err, ok, Result } from 'neverthrow';
 import * as bcrypt from 'bcrypt';

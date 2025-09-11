@@ -21,8 +21,8 @@ import {
 } from '@app/constracts';
 import { RedisService } from '../redis/redis.service';
 import * as dotenv from 'dotenv';
-import { EmailService } from 'apps/users/email/email.service';
-import { User } from 'apps/users/schema/user.schema';
+import { EmailService } from 'apps/users/src/email/email.service';
+import { User } from 'apps/users/src/schema/user.schema';
 import { UsersService } from '../users.service';
 dotenv.config();
 
