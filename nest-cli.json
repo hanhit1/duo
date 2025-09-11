@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/duo/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/duo/tsconfig.app.json"
+  },
+  "projects": {
+    "api-gateway": {
+      "type": "application",
+      "root": "apps/api-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/api-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+      }
+    },
+    "constracts": {
+      "type": "library",
+      "root": "libs/constracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/constracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/constracts/tsconfig.lib.json"
+      }
+    },
+    "duo": {
+      "type": "application",
+      "root": "apps/duo",
+      "entryFile": "main",
+      "sourceRoot": "apps/duo/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/duo/tsconfig.app.json"
+      }
+    },
+    "users": {
+      "type": "application",
+      "root": "apps/users",
+      "entryFile": "main",
+      "sourceRoot": "apps/users/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/users/tsconfig.app.json"
+      }
+    }
+  },
+  "monorepo": true,
+  "root": "apps/duo"
+}
