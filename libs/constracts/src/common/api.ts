@@ -40,27 +40,35 @@ export const toQueryCondition = <T>(filters: FilterItem[]): FilterQuery<T> => {
     switch (i.operator) {
       case Operator.CN.valueOf():
         if (i.value === 'null' || !i.value) break;
-        query[i.field]
-          ? (query[i.field].$regex = new RegExp(i.value, 'i'))
-          : (query[i.field] = { $regex: new RegExp(i.value, 'i') });
+        if (query[i.field]) {
+          query[i.field].$regex = new RegExp(i.value, 'i');
+        } else {
+          query[i.field] = { $regex: new RegExp(i.value, 'i') };
+        }
         break;
       case Operator.SW.valueOf():
         if (i.value === 'null' || !i.value) break;
-        query[i.field]
-          ? (query[i.field].$regex = new RegExp(`^${i.value}`, 'i'))
-          : (query[i.field] = { $regex: new RegExp(`^${i.value}`, 'i') });
+        if (query[i.field]) {
+          query[i.field].$regex = new RegExp(`^${i.value}`, 'i');
+        } else {
+          query[i.field] = { $regex: new RegExp(`^${i.value}`, 'i') };
+        }
         break;
       case Operator.IN.valueOf():
         if (i.value === 'null' || !i.value) break;
-        query[i.field]
-          ? (query[i.field][`$${i.operator}`] = i.value.split(','))
-          : (query[i.field] = { [`$${i.operator}`]: i.value.split(',') });
+        if (query[i.field]) {
+          query[i.field][`$${i.operator}`] = i.value.split(',');
+        } else {
+          query[i.field] = { [`$${i.operator}`]: i.value.split(',') };
+        }
         break;
       default:
         if (i.value === 'null' || !i.value) break;
-        query[i.field]
-          ? (query[i.field][`$${i.operator}`] = i.value)
-          : (query[i.field] = { [`$${i.operator}`]: i.value });
+        if (query[i.field]) {
+          query[i.field][`$${i.operator}`] = i.value;
+        } else {
+          query[i.field] = { [`$${i.operator}`]: i.value };
+        }
         break;
     }
   });
@@ -69,7 +77,7 @@ export const toQueryCondition = <T>(filters: FilterItem[]): FilterQuery<T> => {
 };
 
 export const toSortReq = (rawSort: string): SortReq => {
-  const [field, ...rest] = rawSort?.split(':');
+  const [field, ...rest] = rawSort.split(':');
 
   return { field, value: rest?.join(':') };
 };
