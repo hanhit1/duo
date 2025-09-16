@@ -4,9 +4,9 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Result, err, ok } from 'neverthrow';
 import {
-  AccountRole,
   AppError,
   ChangePasswordVerifyDto,
+  CreateUserDto,
   EmailValidationKey,
   ErrorMessage,
   ForgotPasswordDto,
@@ -15,7 +15,6 @@ import {
   IEmailVerify,
   jwtConstants,
   JwtPayload,
-  LoginDto,
   ResendCodeDto,
   VerifyEmailDto,
 } from '@app/constracts';
@@ -23,13 +22,13 @@ import { RedisService } from '../redis/redis.service';
 import * as dotenv from 'dotenv';
 import { EmailService } from 'apps/users/src/email/email.service';
 import { User } from 'apps/users/src/schema/user.schema';
-import { UsersService } from '../users.service';
+import { UserService } from '../user/user.service';
 dotenv.config();
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private usersService: UserService,
     private jwtService: JwtService,
     private emailService: EmailService,
     private redisService: RedisService,
@@ -113,7 +112,9 @@ export class AuthService {
     }
   }
 
-  async registerWithEmail(registerDto: LoginDto): Promise<Result<{ message: string }, AppError>> {
+  async registerWithEmail(
+    registerDto: CreateUserDto,
+  ): Promise<Result<{ message: string }, AppError>> {
     try {
       const verificationDataExists = await this.redisService.getJson<IEmailVerify>(
         EmailValidationKey,
@@ -142,6 +143,8 @@ export class AuthService {
         code: verificationCode,
         email: registerDto.email,
         password: registerDto.password,
+        fullName: registerDto.fullName,
+        avatarImage: registerDto.avatarImage,
         attempts: 0,
         createdAt: new Date().toISOString(),
       };
@@ -220,7 +223,8 @@ export class AuthService {
       const createUserResult = await this.usersService.createUser({
         email: verifyDto.email,
         password: verificationData.password!,
-        role: AccountRole.User,
+        fullName: verificationData.fullName!,
+        avatarImage: verificationData.avatarImage,
       });
 
       if (createUserResult.isErr()) {

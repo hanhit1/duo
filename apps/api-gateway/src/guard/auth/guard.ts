@@ -1,10 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { CustomRequest, JwtPayload } from '@app/constracts';
+import { CustomRequest, IS_ADMIN_KEY, IS_PUBLIC_KEY, JwtPayload } from '@app/constracts';
 import { jwtConstants } from '@app/constracts';
-import { IS_PUBLIC_KEY } from './public.decorator';
-import { IS_ADMIN_KEY } from './admin.decorator';
 import { AccountRole } from '@app/constracts';
 import { ErrorMessage } from '@app/constracts';
 import { FastifyRequest } from 'fastify';

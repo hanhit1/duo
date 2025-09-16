@@ -10,14 +10,26 @@ export class User extends Document<ObjectId> {
   @Prop({ type: String, required: true, default: AccountRole.User })
   role: AccountRole;
 
-  @Prop(String)
+  @Prop({ type: String, required: true })
   password: string;
 
-  @Prop({ unique: true, sparse: true })
+  @Prop({ unique: true, sparse: true, required: true })
   email: string;
 
   @Prop(String)
   avatarImage?: string;
+
+  @Prop(String)
+  fullName: string;
+
+  @Prop({ type: Boolean, default: true })
+  isActive: boolean;
+
+  @Prop({ type: Number, default: 0 })
+  streakCount: number;
+
+  @Prop({ type: Date, default: Date.now })
+  lastActiveAt: Date;
 }
 
 const userSchema = SchemaFactory.createForClass(User);

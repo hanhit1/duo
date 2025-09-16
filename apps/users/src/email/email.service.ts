@@ -2,21 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { err, ok, Result } from 'neverthrow';
 import { AppError } from '@app/constracts';
 import * as dotenv from 'dotenv';
-import { Resend } from 'resend';
+import * as nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 dotenv.config();
 
 @Injectable()
 export class EmailService {
-  private resend: Resend;
+  private transporter: Transporter;
 
   constructor() {
-    this.resend = new Resend(process.env.RESEND_API_KEY);
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: true,
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    });
   }
 
   async sendVerificationCode(email: string, code: string): Promise<Result<boolean, AppError>> {
     try {
       const mailOptions = {
-        from: `${process.env.GMAIL_USER}>`,
+        from: process.env.GMAIL_USER!,
         to: email,
         subject: 'Email Verification Code',
         html: `
@@ -24,13 +33,13 @@ export class EmailService {
          `,
       };
 
-      await this.resend.emails.send({
+      await this.transporter.sendMail({
         from: mailOptions.from,
         to: email,
         subject: mailOptions.subject,
         html: mailOptions.html,
       });
-
+      console.log('Verification email sent successfully');
       return ok(true);
     } catch (error) {
       console.error('Email sending error:', error);
@@ -56,7 +65,7 @@ export class EmailService {
         `,
       };
 
-      await this.resend.emails.send({
+      await this.transporter.sendMail({
         from: mailOptions.from,
         to: email,
         subject: mailOptions.subject,
