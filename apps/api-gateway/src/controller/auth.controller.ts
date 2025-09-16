@@ -141,6 +141,7 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Post('logout')
   logout(@Res() res: FastifyReply) {
     clearCookieForFastifyResp(res);
