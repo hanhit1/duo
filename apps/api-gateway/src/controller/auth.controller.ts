@@ -11,7 +11,9 @@ import { Body, Controller, Inject, Post, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { FastifyReply } from 'fastify';
 import { clearCookieForFastifyResp, setCookieForFastifyResp } from '../guard/auth/cookie';
+import { ApiCookieAuth } from '@nestjs/swagger';
 
+@ApiCookieAuth()
 @Controller('auth')
 export class AuthController {
   constructor(@Inject('USERS_SERVICE') private readonly client: ClientProxy) {}

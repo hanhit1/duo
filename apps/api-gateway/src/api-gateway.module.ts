@@ -4,6 +4,8 @@ import { ApiGatewayService } from './api-gateway.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
 import { AuthController } from './controller/auth.controller';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './guard/auth/guard';
 
 @Module({
   imports: [
@@ -20,6 +22,12 @@ import { AuthController } from './controller/auth.controller';
     ]),
   ],
   controllers: [ApiGatewayController, AuthController],
-  providers: [ApiGatewayService],
+  providers: [
+    ApiGatewayService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class ApiGatewayModule {}
