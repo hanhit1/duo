@@ -18,6 +18,7 @@ import { ApiCookieAuth } from '@nestjs/swagger';
 export class AuthController {
   constructor(@Inject('USERS_SERVICE') private readonly client: ClientProxy) {}
 
+  @Public()
   @Post('login')
   login(@Body() body: LoginDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'auth.login' }, body).subscribe({
@@ -33,6 +34,7 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Post('register')
   register(@Body() body: CreateUserDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'auth.register' }, body).subscribe({
@@ -47,6 +49,7 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Post('verify-email')
   verifyEmail(@Body() body: VerifyEmailDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'auth.verify-email' }, body).subscribe({
@@ -62,6 +65,7 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Post('resend-verification-code')
   resendVerificationCode(@Body() body: ResendCodeDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'auth.resendCode' }, body).subscribe({
@@ -76,6 +80,7 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Post('forgot-password')
   forgotPassword(@Body() body: ForgotPasswordDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'auth.forgot-password' }, body).subscribe({
@@ -90,6 +95,7 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Post('change-password')
   changePassword(@Body() body: ChangePasswordVerifyDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'auth.change-password' }, body).subscribe({
@@ -104,6 +110,7 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Post('resend-password-code')
   resendPasswordCode(@Body() body: ResendCodeDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'auth.resend-password-code' }, body).subscribe({
