@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthController } from './controller/auth.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth/guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthGuard } from './guard/auth/guard';
         options: { host: 'localhost', port: 3001 },
       },
     ]),
+    JwtModule,
   ],
   controllers: [ApiGatewayController, AuthController],
   providers: [
