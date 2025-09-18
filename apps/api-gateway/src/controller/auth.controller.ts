@@ -7,9 +7,9 @@ import {
   ResendCodeDto,
   VerifyEmailDto,
 } from '@app/constracts';
-import { Body, Controller, Inject, Post, Res } from '@nestjs/common';
+import { Body, Controller, Inject, Post, Req, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { FastifyReply } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { clearCookieForFastifyResp, setCookieForFastifyResp } from '../guard/auth/cookie';
 import { ApiCookieAuth } from '@nestjs/swagger';
 
@@ -127,8 +127,9 @@ export class AuthController {
 
   @Public()
   @Post('refresh')
-  refresh(@Body() body: { refresh_token: string }, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'auth.refresh' }, body.refresh_token).subscribe({
+  refresh(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const refreshToken = req.cookies['refresh_token'];
+    this.client.send({ cmd: 'auth.refresh' }, refreshToken).subscribe({
       next: (result: any) => {
         if (result.value) {
           setCookieForFastifyResp(res, result.value.data);

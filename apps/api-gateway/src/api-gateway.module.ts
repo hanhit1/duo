@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ApiGatewayController } from './api-gateway.controller';
 import { ApiGatewayService } from './api-gateway.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule } from '@nestjs/config';
 import { AuthController } from './controller/auth.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth/guard';
@@ -10,9 +9,9 @@ import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '7d' },
     }),
     ClientsModule.register([
       {
