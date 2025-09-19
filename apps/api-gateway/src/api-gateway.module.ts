@@ -6,6 +6,7 @@ import { AuthController } from './controller/auth.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth/guard';
 import { JwtModule } from '@nestjs/jwt';
+import { CourseController } from './controller/course.controller';
 
 @Module({
   imports: [
@@ -20,9 +21,16 @@ import { JwtModule } from '@nestjs/jwt';
         options: { host: 'localhost', port: 3001 },
       },
     ]),
+    ClientsModule.register([
+      {
+        name: 'LEARNING_SERVICE',
+        transport: Transport.TCP,
+        options: { host: 'localhost', port: 3002 },
+      },
+    ]),
     JwtModule,
   ],
-  controllers: [ApiGatewayController, AuthController],
+  controllers: [ApiGatewayController, AuthController, CourseController],
   providers: [
     ApiGatewayService,
     {
