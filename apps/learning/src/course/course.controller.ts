@@ -3,8 +3,8 @@ import { CourseService } from './course.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { err, ok } from 'neverthrow';
 import { AppError, ErrorMessage, PaginationReq, toApiOkResp } from '@app/constracts';
-import { CreateCourseDto } from './dto/create-course.dto';
-import { UpdateCourseDto } from './dto/update-course.dto';
+import { CreateCourseDto } from '@app/constracts';
+import { UpdateCourseDto } from '@app/constracts';
 
 @Controller()
 export class CourseController {

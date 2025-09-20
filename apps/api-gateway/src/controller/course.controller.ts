@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { CreateCourseDto } from 'apps/learning/src/course/dto/create-course.dto';
-import { UpdateCourseDto } from 'apps/learning/src/course/dto/update-course.dto';
+import { CreateCourseDto } from '@app/constracts/learning/dto/create-course.dto';
+import { UpdateCourseDto } from '@app/constracts/learning/dto/update-course.dto';
 import { FastifyReply } from 'fastify';
 
 @ApiTags('Course')

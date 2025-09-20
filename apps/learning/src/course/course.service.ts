@@ -6,8 +6,8 @@ import * as dotenv from 'dotenv';
 import { Course } from '../schema/course.schema';
 import { Model } from 'mongoose';
 import { err, ok, Result } from 'neverthrow';
-import { CreateCourseDto } from './dto/create-course.dto';
-import { UpdateCourseDto } from './dto/update-course.dto';
+import { CreateCourseDto } from '@app/constracts';
+import { UpdateCourseDto } from '@app/constracts';
 import { convertToObjectId } from '@app/constracts/helpers/convertToObjectId';
 
 dotenv.config();
