@@ -18,14 +18,16 @@ import { CourseController } from './controller/course.controller';
       {
         name: 'USERS_SERVICE',
         transport: Transport.TCP,
-        options: { host: 'localhost', port: 3001 },
+        // options: { host: 'localhost', port: 3001 },
+        options: { host: process.env.USERS_HOST || 'localhost', port: 3001 },
       },
     ]),
     ClientsModule.register([
       {
         name: 'LEARNING_SERVICE',
         transport: Transport.TCP,
-        options: { host: 'localhost', port: 3002 },
+        // options: { host: 'localhost', port: 3002 },
+        options: { host: process.env.LEARNING_HOST || 'localhost', port: 3002 },
       },
     ]),
     JwtModule,

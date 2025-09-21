@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: api-gateway
+    container_name: api-gateway
+    env_file: .env.docker
+    ports:
+      - "3000:3000"
+    depends_on:
+      - users
+      - learning
+
+  users:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: users
+    container_name: users
+    env_file: .env.docker
+    ports:
+      - "3001:3000"
+
+  learning:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: learning
+    container_name: learning
+    env_file: .env.docker
+    ports:
+      - "3002:3000"
