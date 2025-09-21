@@ -76,6 +76,8 @@ $ docker compose up -d
 $ docker compose up -d --build
 
 ```
+## Swagger API Documentation
+Open the browser and access `localhost:3000/api/swagger`
 
 ## Deployment
 
