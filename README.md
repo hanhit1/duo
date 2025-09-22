@@ -57,6 +57,28 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Run Docker using NodeJS scripts
+```bash
+# Start containers from exisiting images (build if not available)
+$ npm run docker
+
+# Rebuild images and recreate containers before starting
+$ npm run docker:build
+
+```
+## Run Docker directly without NodeJS
+
+```bash
+# Start containers from exisiting images (build if not available)
+$ docker compose up -d 
+
+# Rebuild images and recreate containers before starting
+$ docker compose up -d --build
+
+```
+## Swagger API Documentation
+Open the browser and access `localhost:3000/api/swagger`
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

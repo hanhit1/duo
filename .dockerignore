@@ -1,0 +1,23 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build output
+dist
+build
+tmp
+*.tsbuildinfo
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE/editor
+.vscode
+.idea
+*.swp
+*.swo

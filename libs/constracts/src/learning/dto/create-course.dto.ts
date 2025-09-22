@@ -2,6 +2,7 @@ import { IsString, IsNotEmpty, IsNumber, IsOptional, Length } from 'class-valida
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateCourseDto {
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @Length(10)
