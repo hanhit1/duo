@@ -1,10 +1,10 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional, Length } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateCourseDto {
-  @ApiPropertyOptional()
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
+  @Length(10)
   description?: string;
 
   @ApiProperty()
