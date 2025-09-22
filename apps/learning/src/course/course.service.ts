@@ -32,6 +32,19 @@ export class CourseService extends CRUDService<Course> {
 
   async create(createDto: Partial<CreateCourseDto>): Promise<Result<Course, AppError>> {
     try {
+      if (!createDto.displayOrder) {
+        createDto.displayOrder = (await this.courseModel.countDocuments()) + 1;
+      } else {
+        const isExistDisplayOrder = await this.courseModel.findOne({
+          displayOrder: Number(createDto.displayOrder),
+        });
+        if (isExistDisplayOrder) {
+          return err({
+            message: 'Display order already exists',
+            statusCode: 400,
+          });
+        }
+      }
       const modelInstance = new this.courseModel(createDto);
       const createdModel = await modelInstance.save();
       return ok(createdModel.toObject() as Course);

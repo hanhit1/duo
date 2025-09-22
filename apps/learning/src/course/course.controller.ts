@@ -59,7 +59,7 @@ export class CourseController {
       },
       (e: AppError) => {
         console.log(e);
-        return err({ message: ErrorMessage.UNAUTHORIZED });
+        return err({ message: e.message });
       },
     );
   }
