@@ -1,10 +1,9 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, Length } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Length, IsBoolean } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateCourseDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @IsNotEmpty()
   @IsString()
   @Length(10)
   description?: string;
@@ -12,7 +11,6 @@ export class UpdateCourseDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
-  @IsNotEmpty()
   displayOrder: number;
 
   @ApiPropertyOptional()
@@ -22,6 +20,6 @@ export class UpdateCourseDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsBoolean()
   isActive?: boolean;
 }
