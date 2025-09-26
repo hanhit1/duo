@@ -11,6 +11,11 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
+  app.enableCors({
+    origin: 'http://localhost:5173', // FE
+    credentials: true,
+  });
+
   await app.register(fastifyCookie as any, {
     secret: 'cookie-secret',
   });
