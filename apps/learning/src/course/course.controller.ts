@@ -5,10 +5,33 @@ import { err, ok } from 'neverthrow';
 import { AppError, ErrorMessage, PaginationReq, toApiOkResp } from '@app/constracts';
 import { CreateCourseDto } from '@app/constracts';
 import { UpdateCourseDto } from '@app/constracts';
+import { Course } from '../schema/course.schema';
 
 @Controller()
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
+
+  @Get()
+  @MessagePattern({ cmd: 'course.getAllByAdmin' })
+  async getAllByAdmin(@Payload() payload: PaginationReq) {
+    const resultOrErr = await this.courseService.adminGetAllCourse(payload);
+    return resultOrErr.match(
+      ([items, totalRecords]) => {
+        const totalPages = Math.ceil(totalRecords / payload.pageSize);
+        return ok(
+          toApiOkResp(items, {
+            page: +payload.page,
+            pageSize: +payload.pageSize,
+            totalPages,
+            totalRecords,
+          }),
+        );
+      },
+      (e: AppError) => {
+        return err({ message: e.message });
+      },
+    );
+  }
 
   @Get()
   @MessagePattern({ cmd: 'course.getAllByUser' })
@@ -35,9 +58,9 @@ export class CourseController {
   @Get()
   @MessagePattern({ cmd: 'course.getOne' })
   async getById(@Payload() id: string) {
-    const resultOrErr = await this.courseService.findById(id);
+    const resultOrErr = await this.courseService.findOne({ _id: id });
     return resultOrErr.match(
-      (v) => {
+      (v: Course) => {
         return ok(v);
       },
       (e: AppError) => {
