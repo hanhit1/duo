@@ -52,9 +52,19 @@ export class CourseController {
   }
 
   @Admin()
-  @Get(':id')
-  adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'course.getOne' }, id).subscribe({
+  @Get('admin')
+  @ApiOperation({
+    summary: 'Admin view a paginated list of courses',
+    description: 'This API will return a paginated list of courses to Admin',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
+  adminGetAllCourse(@Query('page') page, @Query('pageSize') pageSize, @Res() res: FastifyReply) {
+    const payload: PaginationReq = {
+      page,
+      pageSize,
+    };
+    this.client.send({ cmd: 'course.getAllByAdmin' }, payload).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);
@@ -68,12 +78,26 @@ export class CourseController {
 
   @Admin()
   @Post()
-  @ApiBody({ type: CreateCourseDto })
-  adminCreateCourse(@Body() body, @Res() res: FastifyReply) {
+  adminCreateCourse(@Body() body: CreateCourseDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.create' }, body).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(201).send(result);
+        } else {
+          res.status(400).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
+    });
+  }
+
+  @Admin()
+  @Get(':id')
+  adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
+    this.client.send({ cmd: 'course.getOne' }, id).subscribe({
+      next: (result: any) => {
+        if (result.value) {
+          res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });
         }

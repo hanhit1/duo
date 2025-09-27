@@ -18,6 +18,16 @@ export class CourseService extends CRUDService<Course> {
     super(courseModel);
   }
 
+  async adminGetAllCourse(
+    pagination: PaginationReq,
+  ): Promise<Result<[Course[], number], AppError>> {
+    const [itemsOrErr, totalRecords] = await Promise.all([
+      this.find({}, [], pagination),
+      this.courseModel.countDocuments(),
+    ]);
+    return itemsOrErr.map((items) => [items, totalRecords]);
+  }
+
   async userGetAllCourse(pagination: PaginationReq): Promise<Result<[Course[], number], AppError>> {
     const sort: SortReq = {
       field: 'displayOrder',
@@ -94,9 +104,5 @@ export class CourseService extends CRUDService<Course> {
         cause: e,
       });
     }
-  }
-
-  async findById(id: string) {
-    return this.findOne({ _id: convertToObjectId(id), isActive: true });
   }
 }

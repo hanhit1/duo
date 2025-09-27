@@ -11,6 +11,9 @@ services:
     env_file: .env.docker
     ports:
       - "3000:3000"
+    dns:
+      - 8.8.8.8     # Google DNS
+      - 1.1.1.1     # Cloudflare DNS
     depends_on:
       - users
       - learning
@@ -25,6 +28,9 @@ services:
     env_file: .env.docker
     ports:
       - "3001:3001"
+    dns:
+      - 8.8.8.8     # Google DNS
+      - 1.1.1.1     # Cloudflare DNS
 
   learning:
     build:
@@ -36,3 +42,6 @@ services:
     env_file: .env.docker
     ports:
       - "3002:3002"
+    dns:
+      - 8.8.8.8     # Google DNS
+      - 1.1.1.1     # Cloudflare DNS
