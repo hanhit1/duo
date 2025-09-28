@@ -2,7 +2,15 @@ import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { err, ok } from 'neverthrow';
-import { AppError, ErrorMessage, PaginationReq, toApiOkResp } from '@app/constracts';
+import {
+  AppError,
+  GetCommonDto,
+  Pagination,
+  PaginationReq,
+  toApiErrorResp,
+  toApiOkResp,
+  toQueryCondition,
+} from '@app/constracts';
 import { CreateCourseDto } from '@app/constracts';
 import { UpdateCourseDto } from '@app/constracts';
 import { Course } from '../schema/course.schema';
@@ -13,22 +21,43 @@ export class CourseController {
 
   @Get()
   @MessagePattern({ cmd: 'course.getAllByAdmin' })
-  async getAllByAdmin(@Payload() payload: PaginationReq) {
-    const resultOrErr = await this.courseService.adminGetAllCourse(payload);
+  async getAllByAdmin(@Payload() payload: GetCommonDto) {
+    const { sort, filter, page = 1, pageSize = 20 } = payload;
+
+    const sortValue = sort ?? {
+      field: 'displayOrder',
+      value: 'ASC',
+    };
+
+    const queryCondition = toQueryCondition(filter ?? []);
+    const resultOrErr = await this.courseService.find(
+      queryCondition,
+      [],
+      {
+        page,
+        pageSize,
+      },
+      sortValue,
+    );
+    const countOrError = await this.courseService.count(queryCondition);
+    if (countOrError.isErr()) {
+      return err({ message: countOrError.error.message });
+    }
+    const totalRecords = countOrError.value;
+    const totalPages = Math.ceil(totalRecords / pageSize);
+
+    const pagination: Pagination = {
+      page: page,
+      pageSize: pageSize,
+      totalPages: totalPages,
+      totalRecords: totalRecords,
+    };
     return resultOrErr.match(
-      ([items, totalRecords]) => {
-        const totalPages = Math.ceil(totalRecords / payload.pageSize);
-        return ok(
-          toApiOkResp(items, {
-            page: +payload.page,
-            pageSize: +payload.pageSize,
-            totalPages,
-            totalRecords,
-          }),
-        );
+      (items: Course[]) => {
+        return ok(toApiOkResp(items, pagination));
       },
       (e: AppError) => {
-        return err({ message: e.message });
+        return err(toApiErrorResp(e));
       },
     );
   }
@@ -36,21 +65,38 @@ export class CourseController {
   @Get()
   @MessagePattern({ cmd: 'course.getAllByUser' })
   async getAllByUser(@Payload() payload: PaginationReq) {
-    const resultOrErr = await this.courseService.userGetAllCourse(payload);
+    const { page, pageSize } = payload;
+    const sortValue = { field: 'displayOrder', value: 'ASC' };
+
+    const filter = { isActive: true };
+    const resultOrErr = await this.courseService.find(
+      filter,
+      [],
+      {
+        page,
+        pageSize,
+      },
+      sortValue,
+    );
+    const countOrError = await this.courseService.count(filter);
+    if (countOrError.isErr()) {
+      return err({ message: countOrError.error.message });
+    }
+    const totalRecords = countOrError.value;
+    const totalPages = Math.ceil(totalRecords / pageSize);
+
+    const pagination: Pagination = {
+      page: page,
+      pageSize: pageSize,
+      totalPages: totalPages,
+      totalRecords: totalRecords,
+    };
     return resultOrErr.match(
-      ([items, totalRecords]) => {
-        const totalPages = Math.ceil(totalRecords / payload.pageSize);
-        return ok(
-          toApiOkResp(items, {
-            page: +payload.page,
-            pageSize: +payload.pageSize,
-            totalPages,
-            totalRecords,
-          }),
-        );
+      (items: Course[]) => {
+        return ok(toApiOkResp(items, pagination));
       },
       (e: AppError) => {
-        return err({ message: e.message });
+        return err(toApiErrorResp(e));
       },
     );
   }

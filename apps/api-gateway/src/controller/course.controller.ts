@@ -1,4 +1,4 @@
-import { Admin, PaginationReq } from '@app/constracts';
+import { Admin, GetCommonDto, PaginationReq } from '@app/constracts';
 import {
   Body,
   Controller,
@@ -57,14 +57,35 @@ export class CourseController {
     summary: 'Admin view a paginated list of courses',
     description: 'This API will return a paginated list of courses to Admin',
   })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
-  adminGetAllCourse(@Query('page') page, @Query('pageSize') pageSize, @Res() res: FastifyReply) {
-    const payload: PaginationReq = {
-      page,
-      pageSize,
-    };
-    this.client.send({ cmd: 'course.getAllByAdmin' }, payload).subscribe({
+  @ApiQuery({
+    name: 'filter',
+    description:
+      'Filter conditions in the format: ["field:operator:value"] - (JSON of array string - need to convert to URL before call API in code)',
+    required: false,
+    type: 'string',
+    example: '["description:cn:first"]',
+  })
+  @ApiQuery({
+    name: 'sort',
+    description: 'Sorting conditions in the format: "field:order"',
+    required: false,
+    type: 'string',
+    example: 'displayOrder:ASC',
+  })
+  @ApiQuery({
+    name: 'page',
+    description: 'Page number',
+    required: false,
+    type: 'number',
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    description: 'Number of items per page',
+    required: false,
+    type: 'number',
+  })
+  adminGetAllCourse(@Query() dto: GetCommonDto, @Res() res: FastifyReply) {
+    this.client.send({ cmd: 'course.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);

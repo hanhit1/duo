@@ -15,3 +15,4 @@ export * from './auth/admin.decorator';
 export * from './auth/public.decorator';
 export * from './learning/dto/create-course.dto';
 export * from './learning/dto/update-course.dto';
+export * from './common/get-common.dto.';
