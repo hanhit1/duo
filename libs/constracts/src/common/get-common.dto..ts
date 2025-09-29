@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsArray, IsNumber, IsObject, IsOptional } from 'class-validator';
+import { IsArray, IsNumber, IsObject, IsOptional, IsString, MinLength } from 'class-validator';
 import { FilterItem, SortReq } from './types';
 import { toFilterReq, toSortReq } from './api';
 
@@ -28,4 +28,11 @@ export class GetCommonDto {
   @Transform((o) => (o.value ? toSortReq(o.value) : undefined))
   @IsObject()
   sort?: SortReq;
+
+  @ApiPropertyOptional()
+  @Transform(({ value }) => value?.trim() || undefined)
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  search?: string;
 }

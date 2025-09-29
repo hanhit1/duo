@@ -84,6 +84,13 @@ export class CourseController {
     required: false,
     type: 'number',
   })
+  @ApiQuery({
+    name: 'search',
+    description: 'Search query',
+    required: false,
+    type: 'string',
+    example: 'English',
+  })
   adminGetAllCourse(@Query() dto: GetCommonDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {

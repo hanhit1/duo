@@ -22,7 +22,7 @@ export class CourseController {
   @Get()
   @MessagePattern({ cmd: 'course.getAllByAdmin' })
   async getAllByAdmin(@Payload() payload: GetCommonDto) {
-    const { sort, filter, page = 1, pageSize = 20 } = payload;
+    const { search, sort, filter, page = 1, pageSize = 20 } = payload;
 
     const sortValue = sort ?? {
       field: 'displayOrder',
@@ -32,14 +32,16 @@ export class CourseController {
     const queryCondition = toQueryCondition(filter ?? []);
     const resultOrErr = await this.courseService.find(
       queryCondition,
-      [],
+      [], // populate
       {
         page,
         pageSize,
       },
       sortValue,
+      {}, // projection
+      search,
     );
-    const countOrError = await this.courseService.count(queryCondition);
+    const countOrError = await this.courseService.count(queryCondition, search);
     if (countOrError.isErr()) {
       return err({ message: countOrError.error.message });
     }
@@ -71,7 +73,7 @@ export class CourseController {
     const filter = { isActive: true };
     const resultOrErr = await this.courseService.find(
       filter,
-      [],
+      [], // populate
       {
         page,
         pageSize,

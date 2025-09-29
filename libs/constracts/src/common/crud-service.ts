@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { err, errAsync, ok, okAsync, Result } from 'neverthrow';
 import { AppError, PaginationReq, SortReq } from './types';
 import { ErrorMessage } from './error-message';
+import { normalizeSearch } from '../helpers/normalizeSearch';
 
 @Injectable()
 export class CRUDService<T> {
@@ -52,8 +53,15 @@ export class CRUDService<T> {
     pagination?: PaginationReq,
     sort?: SortReq,
     projection = {},
+    search?: string,
   ): Promise<Result<T[], AppError>> {
     try {
+      if (search) {
+        const searchValue: string = normalizeSearch(search);
+        filter = {
+          $and: [filter, { $text: { $search: searchValue } }],
+        };
+      }
       // const offset = (convertedPage - 1) * convertedPageSize;
       const options = {
         limit: pagination ? pagination.pageSize : undefined,
@@ -80,8 +88,14 @@ export class CRUDService<T> {
     }
   }
 
-  async count(filter = {}) {
+  async count(filter = {}, search?: string) {
     try {
+      if (search) {
+        const searchValue: string = normalizeSearch(search);
+        filter = {
+          $and: [filter, { $text: { $search: searchValue } }],
+        };
+      }
       const totalRecords = await this.model.countDocuments(filter);
       return ok(totalRecords);
     } catch (e) {
