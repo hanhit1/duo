@@ -8,7 +8,7 @@ export class CreateCourseDto {
   @MinLength(10)
   description: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsNumber()
   @IsNotEmpty()
   displayOrder: number;
