@@ -8,6 +8,7 @@ import { AuthGuard } from './guard/auth/guard';
 import { JwtModule } from '@nestjs/jwt';
 import { CourseController } from './controller/course.controller';
 import { UnitController } from './controller/unit.controller';
+import { LessonController } from './controller/lesson.controller';
 
 @Module({
   imports: [
@@ -33,7 +34,13 @@ import { UnitController } from './controller/unit.controller';
     ]),
     JwtModule,
   ],
-  controllers: [ApiGatewayController, AuthController, CourseController, UnitController],
+  controllers: [
+    ApiGatewayController,
+    AuthController,
+    CourseController,
+    UnitController,
+    LessonController,
+  ],
   providers: [
     ApiGatewayService,
     {

@@ -13,21 +13,21 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { CreateUnitDto } from '@app/constracts/learning/dto/create-unit.dto';
-import { UpdateUnitDto } from '@app/constracts/learning/dto/update-unit.dto';
+import { CreateLessonDto } from '@app/constracts/learning/dto/create-lesson.dto';
+import { UpdateLessonDto } from '@app/constracts/learning/dto/update-lesson.dto';
 import { FastifyReply } from 'fastify';
 
-@ApiTags('Unit')
+@ApiTags('Lesson')
 @ApiCookieAuth()
-@Controller('units')
-export class UnitController {
+@Controller('lessons')
+export class LessonController {
   constructor(@Inject('LEARNING_SERVICE') private readonly client: ClientProxy) {}
 
   @Admin()
   @Get('admin')
   @ApiOperation({
-    summary: 'Admin view a paginated list of courses',
-    description: 'This API will return a paginated list of courses to Admin',
+    summary: 'Admin view a paginated list of lessons',
+    description: 'This API will return a paginated list of lessons to Admin',
   })
   @ApiQuery({
     name: 'filter',
@@ -63,8 +63,8 @@ export class UnitController {
     type: 'string',
     example: 'English',
   })
-  adminGetAllUnit(@Query() dto: GetCommonDto, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'unit.getAllByAdmin' }, dto).subscribe({
+  adminGetAllLesson(@Query() dto: GetCommonDto, @Res() res: FastifyReply) {
+    this.client.send({ cmd: 'lesson.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);
@@ -78,8 +78,8 @@ export class UnitController {
 
   @Admin()
   @Post()
-  adminCreateUnit(@Body() body: CreateUnitDto, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'unit.create' }, body).subscribe({
+  adminCreateLesson(@Body() body: CreateLessonDto, @Res() res: FastifyReply) {
+    this.client.send({ cmd: 'lesson.create' }, body).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(201).send(result);
@@ -94,7 +94,7 @@ export class UnitController {
   @Admin()
   @Get(':id')
   adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'unit.getOne' }, id).subscribe({
+    this.client.send({ cmd: 'lesson.getOne' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);
@@ -108,9 +108,13 @@ export class UnitController {
 
   @Admin()
   @Patch(':id')
-  @ApiBody({ type: UpdateUnitDto })
-  adminUpdateUnit(@Param('id') id: string, @Body() body: UpdateUnitDto, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'unit.update' }, { id, body }).subscribe({
+  @ApiBody({ type: UpdateLessonDto })
+  adminUpdateLesson(
+    @Param('id') id: string,
+    @Body() body: UpdateLessonDto,
+    @Res() res: FastifyReply,
+  ) {
+    this.client.send({ cmd: 'lesson.update' }, { id, body }).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);
@@ -124,8 +128,8 @@ export class UnitController {
 
   @Admin()
   @Delete(':id')
-  adminDeleteUnit(@Param('id') id: string, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'unit.remove' }, id).subscribe({
+  adminDeleteLesson(@Param('id') id: string, @Res() res: FastifyReply) {
+    this.client.send({ cmd: 'lesson.remove' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);
