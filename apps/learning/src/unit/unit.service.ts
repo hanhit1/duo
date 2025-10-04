@@ -85,21 +85,21 @@ export class UnitService extends CRUDService<Unit> {
         }
       }
 
-      const course = await this.unitModel.findOneAndUpdate({ _id: id }, updateUnitDto, {
+      const unit = await this.unitModel.findOneAndUpdate({ _id: id }, updateUnitDto, {
         new: true,
       });
 
-      if (!course) {
+      if (!unit) {
         return err({
           message: 'This unit is not exist',
           statusCode: 404,
         });
       }
 
-      return ok(course as Unit);
+      return ok(unit as Unit);
     } catch (e) {
       return err({
-        message: 'Error when updating course',
+        message: 'Error when updating unit',
         statusCode: 500,
         context: updateUnitDto,
         cause: e,

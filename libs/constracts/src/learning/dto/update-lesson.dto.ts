@@ -1,12 +1,12 @@
 import { IsString, IsNumber, IsOptional, MinLength, IsNotEmpty, IsMongoId } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
-export class UpdateUnitDto {
+export class UpdateLessonDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNotEmpty()
   @IsMongoId()
-  courseId: string;
+  unitId: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -18,7 +18,7 @@ export class UpdateUnitDto {
   @IsOptional()
   @IsString()
   @MinLength(10)
-  description?: string;
+  objectives?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

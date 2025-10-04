@@ -17,4 +17,6 @@ export * from './learning/dto/create-course.dto';
 export * from './learning/dto/update-course.dto';
 export * from './learning/dto/create-unit.dto';
 export * from './learning/dto/update-unit.dto';
+export * from './learning/dto/create-lesson.dto';
+export * from './learning/dto/update-lesson.dto';
 export * from './common/get-common.dto.';
