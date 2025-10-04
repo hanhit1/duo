@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { LearningController } from './learning.controller';
 import { LearningService } from './learning.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Course, courseSchema } from './schema/course.schema';
 import { MongooseError } from 'mongoose';
 import * as dotenv from 'dotenv';
 import { CourseModule } from './course/course.module';
+import { UnitModule } from './unit/unit.module';
 
 dotenv.config();
 
@@ -26,8 +26,8 @@ const DB_URI = process.env.DB_URI || 'mongodb+srv://duo:ganganghe@duo.7ixphil.mo
       maxIdleTimeMS: 10000,
       socketTimeoutMS: 30000,
     }),
-    MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
     CourseModule,
+    UnitModule,
   ],
   controllers: [LearningController],
   providers: [LearningService],
