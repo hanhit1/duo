@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import * as dotenv from 'dotenv';
 import { Lesson } from '../schema/lesson.schema';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { err, ok, Result } from 'neverthrow';
 import { convertToObjectId } from '@app/constracts/helpers/convertToObjectId';
 import { UnitService } from '../unit/unit.service';
@@ -23,28 +23,39 @@ export class LessonService extends CRUDService<Lesson> {
   async create(createDto: Partial<Lesson>): Promise<Result<Lesson, AppError>> {
     try {
       if (createDto.unitId) {
-        createDto.unitId = new Types.ObjectId(createDto.unitId as any);
-        const hasUnit = this.unitService.findOne({ _id: createDto.unitId });
-        if (!hasUnit) {
+        //check unit
+        createDto.unitId = convertToObjectId(createDto.unitId);
+        const hasCourse = this.unitService.findOne({ _id: createDto.unitId });
+        if (!hasCourse) {
           return err({
             message: 'UnitId not found',
             statusCode: 400,
           });
         }
-      }
-      if (!createDto.displayOrder) {
-        createDto.displayOrder = (await this.lessonModel.countDocuments()) + 1;
-      } else {
-        const isExistDisplayOrder = await this.lessonModel.findOne({
-          displayOrder: Number(createDto.displayOrder),
-        });
-        if (isExistDisplayOrder) {
-          return err({
-            message: 'Display order already exists',
-            statusCode: 400,
+        // calculate displayOrder of lesson
+        if (!createDto.displayOrder) {
+          // get lesson has max displayOrder in the same unit
+          const lastLesson = await this.lessonModel
+            .findOne({ unitId: createDto.unitId })
+            .sort({ displayOrder: -1 })
+            .select({ displayOrder: 1 })
+            .lean();
+
+          createDto.displayOrder = lastLesson ? lastLesson.displayOrder + 1 : 1;
+        } else {
+          const isExistDisplayOrder = await this.lessonModel.findOne({
+            unitId: createDto.unitId,
+            displayOrder: Number(createDto.displayOrder),
           });
+          if (isExistDisplayOrder) {
+            return err({
+              message: 'Display order already exists',
+              statusCode: 400,
+            });
+          }
         }
       }
+
       const modelInstance = new this.lessonModel(createDto);
       const createdModel = await modelInstance.save();
       return ok(createdModel.toObject() as Lesson);
@@ -60,24 +71,29 @@ export class LessonService extends CRUDService<Lesson> {
 
   async update(id: string, updateLessonDto: UpdateLessonDto): Promise<Result<Lesson, AppError>> {
     try {
-      if (updateLessonDto.unitId) {
-        updateLessonDto.unitId = new Types.ObjectId(updateLessonDto.unitId as any) as any;
-        const hasUnit = this.unitService.findOne({ _id: updateLessonDto.unitId });
+      let hasLesson = await this.lessonModel.findById(id);
+      if (!hasLesson) {
+        return err({
+          message: 'This lesson is not exist',
+          statusCode: 404,
+        });
+      } else {
+        const targetUnitId = convertToObjectId(
+          updateLessonDto.unitId ? updateLessonDto.unitId : hasLesson.unitId,
+        );
+        const targetDisplayOrder = Number(
+          updateLessonDto.displayOrder ? updateLessonDto.displayOrder : hasLesson.displayOrder,
+        );
+        const hasUnit = await this.unitService.findOne({ _id: targetUnitId });
         if (!hasUnit) {
-          return err({
-            message: 'UnitId not found',
-            statusCode: 400,
-          });
+          return err({ message: 'UnitId not found', statusCode: 400 });
         }
-      }
-
-      if (updateLessonDto.displayOrder) {
-        const isExist = await this.lessonModel.findOne({
-          displayOrder: +updateLessonDto.displayOrder,
+        const isExistingDisplayOrder = await this.lessonModel.findOne({
+          unitId: targetUnitId,
+          displayOrder: targetDisplayOrder,
           _id: { $ne: convertToObjectId(id) },
         });
-
-        if (isExist) {
+        if (isExistingDisplayOrder) {
           return err({
             message: 'Display order already exists',
             statusCode: 400,
@@ -85,18 +101,20 @@ export class LessonService extends CRUDService<Lesson> {
         }
       }
 
-      const lesson = await this.lessonModel.findOneAndUpdate({ _id: id }, updateLessonDto, {
-        new: true,
-      });
+      hasLesson = await this.lessonModel.findOneAndUpdate(
+        { _id: id },
+        {
+          ...updateLessonDto,
+          unitId: convertToObjectId(
+            updateLessonDto.unitId ? updateLessonDto.unitId : hasLesson.unitId,
+          ),
+        },
+        {
+          new: true,
+        },
+      );
 
-      if (!lesson) {
-        return err({
-          message: 'This lesson is not exist',
-          statusCode: 404,
-        });
-      }
-
-      return ok(lesson as Lesson);
+      return ok(hasLesson as Lesson);
     } catch (e) {
       return err({
         message: 'Error when updating lesson',
