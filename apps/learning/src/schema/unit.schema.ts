@@ -15,7 +15,7 @@ export class Unit extends Document<ObjectId> {
   @Prop({ type: String })
   description?: string;
 
-  @Prop({ unique: true, sparse: true, required: true })
+  @Prop({ required: true })
   displayOrder: number;
 
   @Prop(String)
@@ -25,6 +25,7 @@ export class Unit extends Document<ObjectId> {
 const unitSchema = SchemaFactory.createForClass(Unit);
 
 unitSchema.index({ title: 'text', description: 'text' });
+unitSchema.index({ courseId: 1, displayOrder: 1 }, { unique: true });
 
 unitSchema.plugin(mongooseTimestamp);
 
