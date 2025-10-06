@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import * as dotenv from 'dotenv';
 import { Unit } from '../schema/unit.schema';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { err, ok, Result } from 'neverthrow';
 import { convertToObjectId } from '@app/constracts/helpers/convertToObjectId';
 import { CourseService } from '../course/course.service';
@@ -24,7 +24,7 @@ export class UnitService extends CRUDService<Unit> {
     try {
       if (createDto.courseId) {
         //check course
-        createDto.courseId = new Types.ObjectId(createDto.courseId as any);
+        createDto.courseId = convertToObjectId(createDto.courseId);
         const hasCourse = this.courseService.findOne({ _id: createDto.courseId });
         if (!hasCourse) {
           return err({

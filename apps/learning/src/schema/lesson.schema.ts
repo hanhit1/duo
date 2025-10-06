@@ -15,7 +15,7 @@ export class Lesson extends Document<ObjectId> {
   @Prop({ type: String })
   objectives?: string;
 
-  @Prop({ unique: true, sparse: true, required: true })
+  @Prop({ required: true })
   displayOrder: number;
 
   @Prop(String)
@@ -25,6 +25,7 @@ export class Lesson extends Document<ObjectId> {
 const lessonSchema = SchemaFactory.createForClass(Lesson);
 
 lessonSchema.index({ title: 'text', objectives: 'text' });
+lessonSchema.index({ unitId: 1, displayOrder: 1 }, { unique: true });
 
 lessonSchema.plugin(mongooseTimestamp);
 
