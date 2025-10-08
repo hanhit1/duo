@@ -13,7 +13,7 @@ import {
 import { CreateUnitDto } from '@app/constracts';
 import { UpdateUnitDto } from '@app/constracts';
 import { Unit } from '../schema/unit.schema';
-import { Types } from 'mongoose';
+import { Lesson } from '../schema/lesson.schema';
 
 @Controller()
 export class UnitController {
@@ -32,7 +32,7 @@ export class UnitController {
     const queryCondition = toQueryCondition(filter ?? []);
     const resultOrErr = await this.unitService.find(
       queryCondition,
-      [], // populate
+      [{ path: 'lessons', model: Lesson.name, options: { sort: { displayOrder: 1 } } }],
       {
         page,
         pageSize,
@@ -67,7 +67,9 @@ export class UnitController {
   @Get()
   @MessagePattern({ cmd: 'unit.getOne' })
   async getById(@Payload() id: string) {
-    const resultOrErr = await this.unitService.findOne({ _id: id });
+    const resultOrErr = await this.unitService.findOne({ _id: id }, [
+      { path: 'lessons', model: Lesson.name, options: { sort: { displayOrder: 1 } } },
+    ]);
     return resultOrErr.match(
       (v: Unit) => {
         return ok(v);
@@ -84,7 +86,7 @@ export class UnitController {
   async adminCreateUnit(@Payload() createUnitDto: CreateUnitDto) {
     const resultOrErr = await this.unitService.create({
       ...createUnitDto,
-      courseId: new Types.ObjectId(createUnitDto.courseId),
+      courseId: createUnitDto.courseId,
     });
     return resultOrErr.match(
       (v) => {

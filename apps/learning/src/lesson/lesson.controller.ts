@@ -13,7 +13,6 @@ import {
 import { CreateLessonDto } from '@app/constracts';
 import { UpdateLessonDto } from '@app/constracts';
 import { Lesson } from '../schema/lesson.schema';
-import { Types } from 'mongoose';
 
 @Controller()
 export class LessonController {
@@ -84,7 +83,7 @@ export class LessonController {
   async adminCreateLesson(@Payload() createLessonDto: CreateLessonDto) {
     const resultOrErr = await this.lessonService.create({
       ...createLessonDto,
-      unitId: new Types.ObjectId(createLessonDto.unitId),
+      unitId: createLessonDto.unitId,
     });
     return resultOrErr.match(
       (v) => {

@@ -6,7 +6,6 @@ import * as dotenv from 'dotenv';
 import { Lesson } from '../schema/lesson.schema';
 import { Model } from 'mongoose';
 import { err, ok, Result } from 'neverthrow';
-import { convertToObjectId } from '@app/constracts/helpers/convertToObjectId';
 import { UnitService } from '../unit/unit.service';
 
 dotenv.config();
@@ -24,7 +23,6 @@ export class LessonService extends CRUDService<Lesson> {
     try {
       if (createDto.unitId) {
         //check unit
-        createDto.unitId = convertToObjectId(createDto.unitId);
         const hasCourse = this.unitService.findOne({ _id: createDto.unitId });
         if (!hasCourse) {
           return err({
@@ -78,9 +76,7 @@ export class LessonService extends CRUDService<Lesson> {
           statusCode: 404,
         });
       } else {
-        const targetUnitId = convertToObjectId(
-          updateLessonDto.unitId ? updateLessonDto.unitId : hasLesson.unitId,
-        );
+        const targetUnitId = updateLessonDto.unitId ? updateLessonDto.unitId : hasLesson.unitId;
         const targetDisplayOrder = Number(
           updateLessonDto.displayOrder ? updateLessonDto.displayOrder : hasLesson.displayOrder,
         );
@@ -91,7 +87,7 @@ export class LessonService extends CRUDService<Lesson> {
         const isExistingDisplayOrder = await this.lessonModel.findOne({
           unitId: targetUnitId,
           displayOrder: targetDisplayOrder,
-          _id: { $ne: convertToObjectId(id) },
+          _id: { $ne: id },
         });
         if (isExistingDisplayOrder) {
           return err({
@@ -105,9 +101,7 @@ export class LessonService extends CRUDService<Lesson> {
         { _id: id },
         {
           ...updateLessonDto,
-          unitId: convertToObjectId(
-            updateLessonDto.unitId ? updateLessonDto.unitId : hasLesson.unitId,
-          ),
+          unitId: updateLessonDto.unitId ? updateLessonDto.unitId : hasLesson.unitId,
         },
         {
           new: true,

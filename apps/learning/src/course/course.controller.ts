@@ -14,6 +14,7 @@ import {
 import { CreateCourseDto } from '@app/constracts';
 import { UpdateCourseDto } from '@app/constracts';
 import { Course } from '../schema/course.schema';
+import { Unit } from '../schema/unit.schema';
 
 @Controller()
 export class CourseController {
@@ -32,7 +33,7 @@ export class CourseController {
     const queryCondition = toQueryCondition(filter ?? []);
     const resultOrErr = await this.courseService.find(
       queryCondition,
-      [], // populate
+      [{ path: 'units', model: Unit.name, options: { sort: { displayOrder: 1 } } }], // populate
       {
         page,
         pageSize,
@@ -73,7 +74,7 @@ export class CourseController {
     const filter = { isActive: true };
     const resultOrErr = await this.courseService.find(
       filter,
-      [], // populate
+      [{ path: 'units', model: Unit.name, options: { sort: { displayOrder: 1 } } }], // populate
       {
         page,
         pageSize,

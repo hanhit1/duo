@@ -1,13 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId, HydratedDocument, Types } from 'mongoose';
 import * as mongooseTimestamp from 'mongoose-timestamp';
+import { Course } from './course.schema';
 
 export type UnitDocument = HydratedDocument<Unit>;
 
 @Schema({ collection: 'units' })
 export class Unit extends Document<ObjectId> {
-  @Prop({ type: Types.ObjectId, ref: 'Course', required: true })
-  courseId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: Course.name, required: true })
+  courseId: Course | ObjectId | string;
 
   @Prop({ type: String })
   title?: string;
@@ -26,6 +27,12 @@ const unitSchema = SchemaFactory.createForClass(Unit);
 
 unitSchema.index({ title: 'text', description: 'text' });
 unitSchema.index({ courseId: 1, displayOrder: 1 }, { unique: true });
+
+unitSchema.virtual('lessons', {
+  ref: 'Lesson',
+  localField: '_id',
+  foreignField: 'unitId',
+});
 
 unitSchema.plugin(mongooseTimestamp);
 

@@ -24,7 +24,6 @@ export class UnitService extends CRUDService<Unit> {
     try {
       if (createDto.courseId) {
         //check course
-        createDto.courseId = convertToObjectId(createDto.courseId);
         const hasCourse = this.courseService.findOne({ _id: createDto.courseId });
         if (!hasCourse) {
           return err({
@@ -78,9 +77,7 @@ export class UnitService extends CRUDService<Unit> {
           statusCode: 404,
         });
       } else {
-        const targetCourseId = convertToObjectId(
-          updateUnitDto.courseId ? updateUnitDto.courseId : hasUnit.courseId,
-        );
+        const targetCourseId = updateUnitDto.courseId ? updateUnitDto.courseId : hasUnit.courseId;
         const targetDisplayOrder = Number(
           updateUnitDto.displayOrder ? updateUnitDto.displayOrder : hasUnit.displayOrder,
         );
@@ -105,9 +102,7 @@ export class UnitService extends CRUDService<Unit> {
         { _id: id },
         {
           ...updateUnitDto,
-          courseId: convertToObjectId(
-            updateUnitDto.courseId ? updateUnitDto.courseId : hasUnit.courseId,
-          ),
+          courseId: updateUnitDto.courseId ? updateUnitDto.courseId : hasUnit.courseId,
         },
         {
           new: true,

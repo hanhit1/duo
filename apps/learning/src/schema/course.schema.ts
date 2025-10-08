@@ -23,6 +23,12 @@ const courseSchema = SchemaFactory.createForClass(Course);
 
 courseSchema.index({ description: 'text' });
 
+courseSchema.virtual('units', {
+  ref: 'Unit',
+  localField: '_id',
+  foreignField: 'courseId',
+});
+
 courseSchema.plugin(mongooseTimestamp);
 
 export { courseSchema };
