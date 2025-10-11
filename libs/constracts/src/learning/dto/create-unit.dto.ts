@@ -4,7 +4,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateUnitDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsMongoId()
+  // @IsMongoId()
   courseId: string;
 
   @ApiProperty()

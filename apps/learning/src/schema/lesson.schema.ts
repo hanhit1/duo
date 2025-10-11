@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, ObjectId, HydratedDocument, Types } from 'mongoose';
+import mongoose, { Document, ObjectId, HydratedDocument } from 'mongoose';
 import * as mongooseTimestamp from 'mongoose-timestamp';
 import { Unit } from './unit.schema';
 
@@ -7,7 +7,7 @@ export type LessonDocument = HydratedDocument<Lesson>;
 
 @Schema({ collection: 'lessons' })
 export class Lesson extends Document<ObjectId> {
-  @Prop({ type: Types.ObjectId, ref: Unit.name, required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Unit.name, required: true })
   unitId: Unit | ObjectId | string;
 
   @Prop({ type: String })
