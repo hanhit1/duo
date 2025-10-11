@@ -6,7 +6,6 @@ import * as dotenv from 'dotenv';
 import { Unit } from '../schema/unit.schema';
 import { Model } from 'mongoose';
 import { err, ok, Result } from 'neverthrow';
-import { convertToObjectId } from '@app/constracts/helpers/convertToObjectId';
 import { CourseService } from '../course/course.service';
 
 dotenv.config();
@@ -88,7 +87,7 @@ export class UnitService extends CRUDService<Unit> {
         const isExistingDisplayOrder = await this.unitModel.findOne({
           courseId: targetCourseId,
           displayOrder: targetDisplayOrder,
-          _id: { $ne: convertToObjectId(id) },
+          _id: { $ne: id },
         });
         if (isExistingDisplayOrder) {
           return err({
