@@ -7,6 +7,7 @@ import * as dotenv from 'dotenv';
 import { CourseModule } from './course/course.module';
 import { UnitModule } from './unit/unit.module';
 import { LessonModule } from './lesson/lesson.module';
+import { TheoryModule } from './theory/theory.module';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ const DB_URI = process.env.DB_URI || 'mongodb+srv://duo:ganganghe@duo.7ixphil.mo
     CourseModule,
     UnitModule,
     LessonModule,
+    TheoryModule,
   ],
   controllers: [LearningController],
   providers: [LearningService],
