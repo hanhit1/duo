@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { CourseController } from './controller/course.controller';
 import { UnitController } from './controller/unit.controller';
 import { LessonController } from './controller/lesson.controller';
+import { TheoryController } from './controller/theory.controller';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { LessonController } from './controller/lesson.controller';
     CourseController,
     UnitController,
     LessonController,
+    TheoryController,
   ],
   providers: [
     ApiGatewayService,

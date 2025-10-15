@@ -19,4 +19,6 @@ export * from './learning/dto/create-unit.dto';
 export * from './learning/dto/update-unit.dto';
 export * from './learning/dto/create-lesson.dto';
 export * from './learning/dto/update-lesson.dto';
+export * from './learning/dto/create-theory.dto';
+export * from './learning/dto/update-theory.dto';
 export * from './common/get-common.dto.';
