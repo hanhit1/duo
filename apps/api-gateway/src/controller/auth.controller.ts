@@ -7,7 +7,7 @@ import {
   ResendCodeDto,
   VerifyEmailDto,
 } from '@app/constracts';
-import { Body, Controller, Inject, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { clearCookieForFastifyResp, setCookieForFastifyResp } from '../guard/auth/cookie';
@@ -147,5 +147,13 @@ export class AuthController {
   logout(@Res() res: FastifyReply) {
     clearCookieForFastifyResp(res);
     return res.status(200).send({ message: 'Logout successful' });
+  }
+
+  @Get('verify')
+  verify(@Res() res: FastifyReply) {
+    return res.status(200).send({
+      success: true,
+      message: 'Token is valid',
+    });
   }
 }
