@@ -10,6 +10,7 @@ import { CourseController } from './controller/course.controller';
 import { UnitController } from './controller/unit.controller';
 import { LessonController } from './controller/lesson.controller';
 import { TheoryController } from './controller/theory.controller';
+import { QuestionController } from './controller/question.controller';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { TheoryController } from './controller/theory.controller';
     UnitController,
     LessonController,
     TheoryController,
+    QuestionController,
   ],
   providers: [
     ApiGatewayService,
