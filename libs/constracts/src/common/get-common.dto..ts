@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Transform, TransformFnParams } from 'class-transformer';
 import { IsArray, IsNumber, IsObject, IsOptional, IsString, MinLength } from 'class-validator';
 import { FilterItem, SortReq } from './types';
@@ -36,3 +36,5 @@ export class GetCommonDto {
   @MinLength(1)
   search?: string;
 }
+
+export class AdminGetQuestionsDto extends OmitType(GetCommonDto, ['search'] as const) {}
