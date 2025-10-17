@@ -21,7 +21,7 @@ export class QuestionController {
   @Get()
   @MessagePattern({ cmd: 'question.getAllByAdmin' })
   async getAllByAdmin(@Payload() payload: GetCommonDto) {
-    const { search, sort, filter, page = 1, pageSize = 20 } = payload;
+    const { sort, filter, page = 1, pageSize = 20 } = payload;
 
     const sortValue = sort ?? {
       field: 'displayOrder',
@@ -38,9 +38,8 @@ export class QuestionController {
       },
       sortValue,
       {}, // projection
-      search,
     );
-    const countOrError = await this.questionService.count(queryCondition, search);
+    const countOrError = await this.questionService.count(queryCondition);
     if (countOrError.isErr()) {
       return err({ message: countOrError.error.message });
     }
