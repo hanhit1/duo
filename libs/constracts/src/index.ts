@@ -23,4 +23,4 @@ export * from './learning/dto/create-theory.dto';
 export * from './learning/dto/update-theory.dto';
 export * from './learning/dto/create-question.dto';
 export * from './learning/dto/update-question.dto';
-export * from './common/get-common.dto.';
+export * from './common/get-common.dto';

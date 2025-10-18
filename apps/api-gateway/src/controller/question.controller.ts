@@ -25,8 +25,8 @@ export class QuestionController {
 
   @Get('user/:lessonId')
   @ApiOperation({
-    summary: 'User view a list of questions',
-    description: 'This API will return a list of questions to Users',
+    summary: 'User view a list of questions by lessonId',
+    description: 'This API will return a list of questions by lessonId to Users',
   })
   @ApiParam({ name: 'lessonId', required: true, type: String, example: '68e0ff54c70a8e676d5867ce' })
   userGetAllQuestions(@Param('lessonId') lessonId: string, @Res() res: FastifyReply) {
