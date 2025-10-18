@@ -25,8 +25,8 @@ export class TheoryController {
 
   @Get('user/:unitId')
   @ApiOperation({
-    summary: 'User view a paginated list of theories',
-    description: 'This API will return a paginated list of theories to Users',
+    summary: 'User view a paginated list of theories by unitId',
+    description: 'This API will return a paginated list of theories by unitId to Users',
   })
   @ApiParam({ name: 'unitId', required: true, type: String, example: '68ee1a34c266b0cca468706a' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })

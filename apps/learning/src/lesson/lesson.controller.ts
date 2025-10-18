@@ -48,8 +48,8 @@ export class LessonController {
     const totalPages = Math.ceil(totalRecords / pageSize);
 
     const pagination: Pagination = {
-      page: page,
-      pageSize: pageSize,
+      page: Number(page),
+      pageSize: Number(pageSize),
       totalPages: totalPages,
       totalRecords: totalRecords,
     };

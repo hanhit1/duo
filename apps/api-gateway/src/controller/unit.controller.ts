@@ -1,4 +1,4 @@
-import { Admin, GetCommonDto } from '@app/constracts';
+import { Admin, GetCommonDto, PaginationReq } from '@app/constracts';
 import {
   Body,
   Controller,
@@ -12,7 +12,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCookieAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateUnitDto } from '@app/constracts/learning/dto/create-unit.dto';
 import { UpdateUnitDto } from '@app/constracts/learning/dto/update-unit.dto';
 import { FastifyReply } from 'fastify';
@@ -26,8 +26,8 @@ export class UnitController {
   @Admin()
   @Get('admin')
   @ApiOperation({
-    summary: 'Admin view a paginated list of courses',
-    description: 'This API will return a paginated list of courses to Admin',
+    summary: 'Admin view a paginated list of units',
+    description: 'This API will return a paginated list of units to Admin',
   })
   @ApiQuery({
     name: 'filter',
@@ -65,6 +65,36 @@ export class UnitController {
   })
   adminGetAllUnit(@Query() dto: GetCommonDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'unit.getAllByAdmin' }, dto).subscribe({
+      next: (result: any) => {
+        if (result.value) {
+          res.status(200).send(result);
+        } else {
+          res.status(400).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
+    });
+  }
+
+  @Get('user/:courseId')
+  @ApiOperation({
+    summary: 'User view a paginated list of units-lessons by courseId',
+    description: 'This API will return a paginated list of units-lessons by courseId to Users',
+  })
+  @ApiParam({ name: 'courseId', required: true, type: String, example: '68cd5bd514e80cdf75770d9e' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
+  userGetAllUnitsLessons(
+    @Param('courseId') courseId: string,
+    @Query('page') page = 1,
+    @Query('pageSize') pageSize = 10,
+    @Res() res: FastifyReply,
+  ) {
+    const payload: PaginationReq = {
+      page,
+      pageSize,
+    };
+    this.client.send({ cmd: 'unitAndLesson.getAllByUser' }, { courseId, ...payload }).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);

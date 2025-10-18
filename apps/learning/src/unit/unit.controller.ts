@@ -6,6 +6,7 @@ import {
   AppError,
   GetCommonDto,
   Pagination,
+  PaginationReq,
   toApiErrorResp,
   toApiOkResp,
   toQueryCondition,
@@ -49,8 +50,46 @@ export class UnitController {
     const totalPages = Math.ceil(totalRecords / pageSize);
 
     const pagination: Pagination = {
-      page: page,
-      pageSize: pageSize,
+      page: Number(page),
+      pageSize: Number(pageSize),
+      totalPages: totalPages,
+      totalRecords: totalRecords,
+    };
+    return resultOrErr.match(
+      (items: Unit[]) => {
+        return ok(toApiOkResp(items, pagination));
+      },
+      (e: AppError) => {
+        return err(toApiErrorResp(e));
+      },
+    );
+  }
+
+  @Get()
+  @MessagePattern({ cmd: 'unitAndLesson.getAllByUser' })
+  async getAllByUser(@Payload() payload: { courseId: string } & PaginationReq) {
+    const { page, pageSize, courseId } = payload;
+    const sortValue = { field: 'displayOrder', value: 'ASC' };
+
+    const resultOrErr = await this.unitService.find(
+      { courseId }, // filter
+      [{ path: 'lessons', model: Lesson.name, options: { sort: { displayOrder: 1 } } }], // populate
+      {
+        page,
+        pageSize,
+      },
+      sortValue,
+    );
+    const countOrError = await this.unitService.count({ courseId });
+    if (countOrError.isErr()) {
+      return err({ message: countOrError.error.message });
+    }
+    const totalRecords = countOrError.value;
+    const totalPages = Math.ceil(totalRecords / pageSize);
+
+    const pagination: Pagination = {
+      page: Number(page),
+      pageSize: Number(pageSize),
       totalPages: totalPages,
       totalRecords: totalRecords,
     };
