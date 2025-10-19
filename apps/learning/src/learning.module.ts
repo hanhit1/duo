@@ -12,11 +12,9 @@ import { QuestionModule } from './question/question.module';
 
 dotenv.config();
 
-const DB_URI = process.env.DB_URI || 'mongodb+srv://duo:ganganghe@duo.7ixphil.mongodb.net/duo';
-
 @Module({
   imports: [
-    MongooseModule.forRoot(DB_URI, {
+    MongooseModule.forRoot(process.env.DB_URI as string, {
       retryAttempts: 1,
       retryDelay: 1000,
       connectionErrorFactory: (error: MongooseError) => {
