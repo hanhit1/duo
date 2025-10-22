@@ -16,6 +16,26 @@ export class UserService extends CRUDService<User> {
     super(userModel);
   }
 
+  async getProfile(userId: string): Promise<Result<User, AppError>> {
+    try {
+      const user = await this.userModel.findById(userId).select('-password').lean();
+      if (!user) {
+        return err({
+          message: ErrorMessage.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      return ok(user);
+    } catch (e) {
+      return err({
+        message: ErrorMessage.ERROR_WHEN_FETCHING_USER,
+        statusCode: 500,
+        context: { userId },
+        cause: e,
+      });
+    }
+  }
+
   async createUser(createUserDto: CreateUserDto): Promise<Result<User, AppError>> {
     try {
       const hashedPassword = createUserDto.password
