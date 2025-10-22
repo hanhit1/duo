@@ -4,6 +4,7 @@ export const ErrorMessage = {
   INVALID_PASSWORD: 'Invalid password',
   ACCOUNT_HAS_BEEN_LOCKED: 'Account has been locked',
   ACCOUNT_HAS_BEEN_EXPIRED: 'Account has been expired',
+  ERROR_WHEN_FETCHING_USER: 'Error when fetching user',
   ERROR_WHEN_SAVING_USER: 'Error when saving new user',
   ERROR_WHEN_UPDATING_USER: 'Error when updating user',
   ERROR_WHEN_RETRIEVING_MODEL: 'Error when retrieving model',

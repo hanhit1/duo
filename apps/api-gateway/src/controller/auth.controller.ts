@@ -149,11 +149,18 @@ export class AuthController {
     return res.status(200).send({ message: 'Logout successful' });
   }
 
-  @Get('verify')
-  verify(@Res() res: FastifyReply) {
-    return res.status(200).send({
-      success: true,
-      message: 'Token is valid',
+  @Get('profile')
+  getProfile(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const { userId } = (req as any).user;
+    this.client.send({ cmd: 'auth.get-profile' }, userId).subscribe({
+      next: (result: any) => {
+        if (result.value) {
+          res.status(200).send(result);
+        } else {
+          res.status(401).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
     });
   }
 }

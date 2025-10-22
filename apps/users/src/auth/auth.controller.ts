@@ -164,4 +164,20 @@ export class AuthController {
       },
     );
   }
+
+  @MessagePattern({ cmd: 'auth.get-profile' })
+  async getProfile(@Payload() userId: string) {
+    const userOrError = await this.userService.getProfile(userId);
+    return userOrError.match(
+      (v) => {
+        return ok({
+          data: v,
+        });
+      },
+      (e: AppError) => {
+        console.log(e);
+        return err({ message: e.message });
+      },
+    );
+  }
 }
