@@ -5,6 +5,7 @@ import fastifyCookie from '@fastify/cookie';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyCors from '@fastify/cors';
+import fastifyMultipart from '@fastify/multipart';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -15,6 +16,12 @@ async function bootstrap() {
   await app.register(fastifyCors as any, {
     origin: 'http://localhost:5173',
     credentials: true,
+  });
+
+  await app.register(fastifyMultipart as any, {
+    limits: {
+      fileSize: 10 * 1024 * 1024,
+    },
   });
 
   await app.register(fastifyCookie as any, {
