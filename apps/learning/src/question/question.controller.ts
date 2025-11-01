@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { QuestionService } from './question.service';
 import {
   AppError,
@@ -87,7 +87,7 @@ export class QuestionController {
   @Post()
   @MessagePattern({ cmd: 'question.create' })
   async adminCreateQuestion(@Payload() createQuestionDto: CreateQuestionDto) {
-    const resultOrErr = await this.questionService.create({
+    const resultOrErr = await this.questionService.insert({
       ...createQuestionDto,
       lessonId: createQuestionDto.lessonId,
     });
@@ -119,7 +119,7 @@ export class QuestionController {
     );
   }
 
-  @Patch()
+  @Put()
   @MessagePattern({ cmd: 'question.update' })
   async adminUpdateQuestion(@Payload() payload: { id: string; body: UpdateQuestionDto }) {
     const { id, body } = payload;
