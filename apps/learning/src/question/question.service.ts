@@ -1,11 +1,12 @@
-import { AppError, CRUDService, ErrorMessage } from '@app/constracts';
+import { AppError, CreateQuestionDto, CRUDService, ErrorMessage } from '@app/constracts';
 import { Injectable } from '@nestjs/common';
 import { Question } from '../schema/question.schema';
 import { LessonService } from '../lesson/lesson.service';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ok, err, Result } from 'neverthrow';
 import { UpdateQuestionDto } from '@app/constracts/learning/dto/update-question.dto';
+import { QuestionType } from '@app/constracts/common/enum';
 
 @Injectable()
 export class QuestionService extends CRUDService<Question> {
@@ -16,7 +17,7 @@ export class QuestionService extends CRUDService<Question> {
     super(questionModel);
   }
 
-  async create(createDto: Partial<Question>): Promise<Result<Question, AppError>> {
+  async insert(createDto: CreateQuestionDto): Promise<Result<Question, AppError>> {
     try {
       if (createDto.lessonId) {
         //check lesson
@@ -48,6 +49,14 @@ export class QuestionService extends CRUDService<Question> {
               statusCode: 400,
             });
           }
+        }
+      }
+
+      if (createDto.typeQuestion === QuestionType.MATCHING) {
+        for (let i = 0; i < (createDto.leftText as any).length; i++) {
+          const pairId = new mongoose.Types.ObjectId();
+          (createDto.leftText as any)[i] = { ...(createDto.leftText as any)[i], pairId };
+          (createDto.rightText as any)[i] = { ...(createDto.rightText as any)[i], pairId };
         }
       }
 
@@ -93,7 +102,7 @@ export class QuestionService extends CRUDService<Question> {
         });
       }
 
-      const theoryFieldsMap: Record<string, string[]> = {
+      const questionFieldsMap: Record<string, string[]> = {
         matching: ['leftText', 'rightText', 'correctAnswers'],
         ordering: ['fragmentText', 'exactFragmentText'],
         gap: ['mediaUrl', 'correctAnswer'],
@@ -101,16 +110,13 @@ export class QuestionService extends CRUDService<Question> {
       };
 
       // check if update typeQuestion
-      if (
-        updateQuestionDto.typeQuestion &&
-        updateQuestionDto.typeQuestion !== hasQuestion.typeQuestion
-      ) {
-        if (updateQuestionDto.typeQuestion && !theoryFieldsMap[updateQuestionDto.typeQuestion]) {
+      if (updateQuestionDto.typeQuestion) {
+        if (updateQuestionDto.typeQuestion && !questionFieldsMap[updateQuestionDto.typeQuestion]) {
           return err({ message: 'Invalid typeQuestion', statusCode: 400 });
         }
 
         // remove fields of old typeQuestion
-        const unsetFields = theoryFieldsMap[hasQuestion.typeQuestion] || [];
+        const unsetFields = questionFieldsMap[hasQuestion.typeQuestion] || [];
         if (unsetFields.length > 0) {
           await this.questionModel.updateOne(
             {
@@ -125,13 +131,29 @@ export class QuestionService extends CRUDService<Question> {
         // remove invalid fields from DTO
         for (const key of Object.keys(updateQuestionDto)) {
           if (
-            !theoryFieldsMap[updateQuestionDto.typeQuestion].includes(key) &&
+            !questionFieldsMap[updateQuestionDto.typeQuestion].includes(key) &&
             !['lessonId', 'displayOrder', 'typeQuestion'].includes(key)
           ) {
             delete updateQuestionDto[key];
           }
         }
       }
+
+      // process pairId for MATCHING question
+      if (updateQuestionDto.typeQuestion === QuestionType.MATCHING) {
+        for (let i = 0; i < (updateQuestionDto.leftText as any).length; i++) {
+          const pairId = new mongoose.Types.ObjectId();
+          (updateQuestionDto.leftText as any)[i] = {
+            ...(updateQuestionDto.leftText as any)[i],
+            pairId,
+          };
+          (updateQuestionDto.rightText as any)[i] = {
+            ...(updateQuestionDto.rightText as any)[i],
+            pairId,
+          };
+        }
+      }
+      // end process pairId for MATCHING question
 
       const updatedQuestion = await this.questionModel.findOneAndUpdate(
         {

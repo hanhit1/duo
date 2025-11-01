@@ -1,5 +1,5 @@
 import { Admin, AdminGetQuestionsDto } from '@app/constracts';
-import { Body, Controller, Get, Inject, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Put, Query, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateQuestionDto } from '@app/constracts/learning/dto/create-question.dto';
@@ -108,7 +108,7 @@ export class QuestionController {
   }
 
   @Admin()
-  @Patch(':id')
+  @Put(':id')
   @ApiBody({ type: UpdateQuestionDto })
   adminUpdateQuestion(
     @Param('id') id: string,

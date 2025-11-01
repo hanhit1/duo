@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsEnum,
   IsMongoId,
   IsNotEmpty,
@@ -6,9 +7,12 @@ import {
   IsOptional,
   IsString,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { QuestionType } from '@app/constracts/common/enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { MatchingQuestionItemDto } from '@app/constracts/common/types';
 
 export class CreateQuestionDto {
   // --- COMMON ---
@@ -29,10 +33,7 @@ export class CreateQuestionDto {
 
   @ApiProperty()
   @ValidateIf(
-    (o) =>
-      o.typeQuestion === QuestionType.MATCHING ||
-      o.typeQuestion === QuestionType.GAP ||
-      o.typeQuestion === QuestionType.MULTIPLE_CHOICE,
+    (o) => o.typeQuestion === QuestionType.GAP || o.typeQuestion === QuestionType.MULTIPLE_CHOICE,
   )
   @IsNotEmpty()
   @IsString()
@@ -47,17 +48,21 @@ export class CreateQuestionDto {
   mediaUrl?: string;
 
   // --- MATCHING ---
-  @ApiProperty()
+  @ApiProperty({ type: [MatchingQuestionItemDto] })
   @ValidateIf((o) => o.typeQuestion === QuestionType.MATCHING)
+  @IsArray()
+  @ValidateNested({ each: true }) // validate object inside array by MatchingItemDto
+  @Type(() => MatchingQuestionItemDto) // transform plain every object in InputArray to MatchingItemDto instance
   @IsNotEmpty()
-  @IsString({ each: true })
-  leftText?: string[];
+  leftText?: MatchingQuestionItemDto[];
 
-  @ApiProperty()
+  @ApiProperty({ type: [MatchingQuestionItemDto] })
   @ValidateIf((o) => o.typeQuestion === QuestionType.MATCHING)
+  @IsArray()
+  @ValidateNested({ each: true }) // validate object inside array by MatchingItemDto
+  @Type(() => MatchingQuestionItemDto) // transform plain every object in InputArray to MatchingItemDto instance
   @IsNotEmpty()
-  @IsString({ each: true })
-  rightText?: string[];
+  rightText?: MatchingQuestionItemDto[];
 
   // --- ORDERING ---
   @ApiProperty()
