@@ -14,9 +14,6 @@ export class Course extends Document<ObjectId> {
 
   @Prop(String)
   thumbnail?: string;
-
-  @Prop({ type: Boolean, default: true })
-  isActive: boolean;
 }
 
 const courseSchema = SchemaFactory.createForClass(Course);

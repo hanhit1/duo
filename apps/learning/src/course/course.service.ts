@@ -8,7 +8,6 @@ import { Model } from 'mongoose';
 import { err, ok, Result } from 'neverthrow';
 import { CreateCourseDto } from '@app/constracts';
 import { UpdateCourseDto } from '@app/constracts';
-import { convertToObjectId } from '@app/constracts/helpers/convertToObjectId';
 
 dotenv.config();
 
@@ -24,28 +23,22 @@ export class CourseService extends CRUDService<Course> {
       value: 'ASC',
     };
     const [itemsOrErr, totalRecords] = await Promise.all([
-      this.find({ isActive: true }, [], pagination, sort),
-      this.courseModel.countDocuments({ isActive: true }),
+      this.find({}, [], pagination, sort),
+      this.courseModel.countDocuments(),
     ]);
     return itemsOrErr.map((items) => [items, totalRecords]);
   }
 
   async create(createDto: Partial<CreateCourseDto>): Promise<Result<Course, AppError>> {
     try {
-      if (!createDto.displayOrder) {
-        createDto.displayOrder = (await this.courseModel.countDocuments()) + 1;
-      } else {
-        const isExistDisplayOrder = await this.courseModel.findOne({
-          displayOrder: Number(createDto.displayOrder),
-        });
-        if (isExistDisplayOrder) {
-          return err({
-            message: 'Display order already exists',
-            statusCode: 400,
-          });
-        }
-      }
-      const modelInstance = new this.courseModel(createDto);
+      const currentMaxDisplayOrder = await this.courseModel
+        .findOne()
+        .sort({ displayOrder: -1 })
+        .select('displayOrder')
+        .lean();
+      const nextDisplayOrder = currentMaxDisplayOrder ? currentMaxDisplayOrder.displayOrder + 1 : 1;
+
+      const modelInstance = new this.courseModel({ ...createDto, displayOrder: nextDisplayOrder });
       const createdModel = await modelInstance.save();
       return ok(createdModel.toObject() as Course);
     } catch (e) {
@@ -60,19 +53,8 @@ export class CourseService extends CRUDService<Course> {
 
   async update(id: string, updateCourseDto: UpdateCourseDto): Promise<Result<Course, AppError>> {
     try {
-      if (updateCourseDto.displayOrder) {
-        const isExist = await this.courseModel.findOne({
-          displayOrder: +updateCourseDto.displayOrder,
-          _id: { $ne: convertToObjectId(id) },
-        });
-
-        if (isExist) {
-          return err({
-            message: 'Display order already exists',
-            statusCode: 400,
-          });
-        }
-      }
+      // remove displayOrder from update dto to prevent updating it
+      delete updateCourseDto['displayOrder'];
 
       const course = await this.courseModel.findOneAndUpdate({ _id: id }, updateCourseDto, {
         new: true,
