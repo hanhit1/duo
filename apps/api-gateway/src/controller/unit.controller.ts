@@ -1,16 +1,5 @@
 import { Admin, GetCommonDto, PaginationReq } from '@app/constracts';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Inject,
-  Param,
-  Patch,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateUnitDto } from '@app/constracts/learning/dto/create-unit.dto';
@@ -141,21 +130,6 @@ export class UnitController {
   @ApiBody({ type: UpdateUnitDto })
   adminUpdateUnit(@Param('id') id: string, @Body() body: UpdateUnitDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'unit.update' }, { id, body }).subscribe({
-      next: (result: any) => {
-        if (result.value) {
-          res.status(200).send(result);
-        } else {
-          res.status(400).send({ message: result.error.message });
-        }
-      },
-      error: () => res.status(500).send({ message: 'Internal server error' }),
-    });
-  }
-
-  @Admin()
-  @Delete(':id')
-  adminDeleteUnit(@Param('id') id: string, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'unit.remove' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);

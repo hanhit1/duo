@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import { Controller, Get, Patch, Post } from '@nestjs/common';
 import { UnitService } from './unit.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { err, ok } from 'neverthrow';
@@ -145,23 +145,6 @@ export class UnitController {
   async adminUpdateUnit(@Payload() payload: { id: string; body: UpdateUnitDto }) {
     const { id, body } = payload;
     const resultOrErr = await this.unitService.update(id, body);
-    return resultOrErr.match(
-      (v) => {
-        return ok({
-          data: v,
-        });
-      },
-      (e: AppError) => {
-        console.log(e);
-        return err({ message: e.message });
-      },
-    );
-  }
-
-  @Delete()
-  @MessagePattern({ cmd: 'unit.remove' })
-  async adminDeleteUnit(@Payload() id: string) {
-    const resultOrErr = await this.unitService.remove(id);
     return resultOrErr.match(
       (v) => {
         return ok({
