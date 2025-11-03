@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { err, ok } from 'neverthrow';
+import * as path from 'path';
 import { Readable } from 'stream';
 
 cloudinary.config({
@@ -10,9 +11,11 @@ cloudinary.config({
 
 export const uploadImage = async (buffer: Buffer, filename: string) => {
   try {
+    const filenameWithoutExt = path.parse(filename).name;
+
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: 'duo', resource_type: 'image', public_id: filename },
+        { folder: 'duo', resource_type: 'auto', public_id: filenameWithoutExt },
         (error, result) => {
           if (error) {
             reject(new Error('Cloudinary upload failed: ' + error.message));
