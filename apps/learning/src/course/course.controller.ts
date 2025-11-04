@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import { Controller, Get, Patch, Post } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { err, ok } from 'neverthrow';
@@ -71,7 +71,7 @@ export class CourseController {
     const { page, pageSize } = payload;
     const sortValue = { field: 'displayOrder', value: 'ASC' };
 
-    const filter = { isActive: true };
+    const filter = {};
     const resultOrErr = await this.courseService.find(
       filter,
       [{ path: 'units', model: Unit.name, options: { sort: { displayOrder: 1 } } }], // populate
@@ -141,23 +141,6 @@ export class CourseController {
   async adminUpdateCourse(@Payload() payload: { id: string; body: UpdateCourseDto }) {
     const { id, body } = payload;
     const resultOrErr = await this.courseService.update(id, body);
-    return resultOrErr.match(
-      (v) => {
-        return ok({
-          data: v,
-        });
-      },
-      (e: AppError) => {
-        console.log(e);
-        return err({ message: e.message });
-      },
-    );
-  }
-
-  @Delete()
-  @MessagePattern({ cmd: 'course.remove' })
-  async adminDeleteCourse(@Payload() id: string) {
-    const resultOrErr = await this.courseService.remove(id);
     return resultOrErr.match(
       (v) => {
         return ok({

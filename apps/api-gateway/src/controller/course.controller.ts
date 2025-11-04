@@ -1,16 +1,5 @@
 import { Admin, GetCommonDto, PaginationReq } from '@app/constracts';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Inject,
-  Param,
-  Patch,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateCourseDto } from '@app/constracts/learning/dto/create-course.dto';
@@ -139,21 +128,6 @@ export class CourseController {
   @ApiBody({ type: UpdateCourseDto })
   adminUpdateCourse(@Param('id') id: string, @Body() body, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.update' }, { id, body }).subscribe({
-      next: (result: any) => {
-        if (result.value) {
-          res.status(200).send(result);
-        } else {
-          res.status(400).send({ message: result.error.message });
-        }
-      },
-      error: () => res.status(500).send({ message: 'Internal server error' }),
-    });
-  }
-
-  @Admin()
-  @Delete(':id')
-  adminDeleteCourse(@Param('id') id: string, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'course.remove' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);

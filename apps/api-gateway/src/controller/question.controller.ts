@@ -1,16 +1,5 @@
 import { Admin, AdminGetQuestionsDto } from '@app/constracts';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Inject,
-  Param,
-  Patch,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Put, Query, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateQuestionDto } from '@app/constracts/learning/dto/create-question.dto';
@@ -119,7 +108,7 @@ export class QuestionController {
   }
 
   @Admin()
-  @Patch(':id')
+  @Put(':id')
   @ApiBody({ type: UpdateQuestionDto })
   adminUpdateQuestion(
     @Param('id') id: string,
@@ -127,21 +116,6 @@ export class QuestionController {
     @Res() res: FastifyReply,
   ) {
     this.client.send({ cmd: 'question.update' }, { id, body }).subscribe({
-      next: (result: any) => {
-        if (result.value) {
-          res.status(200).send(result);
-        } else {
-          res.status(400).send({ message: result.error.message });
-        }
-      },
-      error: () => res.status(500).send({ message: 'Internal server error' }),
-    });
-  }
-
-  @Admin()
-  @Delete(':id')
-  adminDeleteQuestion(@Param('id') id: string, @Res() res: FastifyReply) {
-    this.client.send({ cmd: 'question.remove' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);

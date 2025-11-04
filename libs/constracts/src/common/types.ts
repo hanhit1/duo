@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { FastifyRequest } from 'fastify';
 
 export type AppError = {
@@ -61,4 +63,11 @@ export type GeneratedToken = {
 export enum AccountRole {
   User = 'user',
   Admin = 'admin',
+}
+
+export class MatchingQuestionItemDto {
+  @ApiProperty({ example: 'Text value' })
+  @IsString()
+  @IsNotEmpty()
+  value: string;
 }

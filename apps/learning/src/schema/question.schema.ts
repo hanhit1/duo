@@ -12,19 +12,19 @@ export class Question extends Document<ObjectId> {
   lessonId: Lesson | ObjectId | string;
 
   @Prop({ type: Array })
-  leftText?: Array<string>; // type = MATCHING
+  leftText?: Array<{ value: string; pairId: mongoose.Types.ObjectId }>; // type = MATCHING
 
   @Prop({ type: Array })
-  rightText?: Array<string>; // type = MATCHING
+  rightText?: Array<{ value: string; pairId: mongoose.Types.ObjectId }>; // type = MATCHING
 
   @Prop({ type: String })
-  correctAnswer?: string; // type = MATCHING, MULTIPLE_CHOICE, GAP
+  correctAnswer?: string; // type = MULTIPLE_CHOICE, GAP
 
   @Prop({ type: Array })
   fragmentText?: Array<string>; // type = ORDERING
 
-  @Prop({ type: Array })
-  exactFragmentText?: Array<string>; // type = ORDERING
+  @Prop({ type: String })
+  exactFragmentText?: string; // type = ORDERING
 
   @Prop({ type: Array })
   answers?: Array<string>; // type = MULTIPLE_CHOICE

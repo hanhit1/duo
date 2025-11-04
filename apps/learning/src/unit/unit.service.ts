@@ -21,40 +21,14 @@ export class UnitService extends CRUDService<Unit> {
 
   async create(createDto: Partial<Unit>): Promise<Result<Unit, AppError>> {
     try {
-      if (createDto.courseId) {
-        //check course
-        const hasCourse = this.courseService.findOne({ _id: createDto.courseId });
-        if (!hasCourse) {
-          return err({
-            message: 'CourseId not found',
-            statusCode: 400,
-          });
-        }
-        // calculate displayOrder of unit
-        if (!createDto.displayOrder) {
-          // get unit has max displayOrder in the same course
-          const lastUnit = await this.unitModel
-            .findOne({ courseId: createDto.courseId })
-            .sort({ displayOrder: -1 })
-            .select({ displayOrder: 1 })
-            .lean();
+      const currentMaxDisplayOrder = await this.unitModel
+        .findOne({ courseId: createDto.courseId })
+        .sort({ displayOrder: -1 })
+        .select('displayOrder')
+        .lean();
+      const nextDisplayOrder = currentMaxDisplayOrder ? currentMaxDisplayOrder.displayOrder + 1 : 1;
 
-          createDto.displayOrder = lastUnit ? lastUnit.displayOrder + 1 : 1;
-        } else {
-          const isExistDisplayOrder = await this.unitModel.findOne({
-            courseId: createDto.courseId,
-            displayOrder: Number(createDto.displayOrder),
-          });
-          if (isExistDisplayOrder) {
-            return err({
-              message: 'Display order already exists',
-              statusCode: 400,
-            });
-          }
-        }
-      }
-
-      const modelInstance = new this.unitModel(createDto);
+      const modelInstance = new this.unitModel({ ...createDto, displayOrder: nextDisplayOrder });
       const createdModel = await modelInstance.save();
       return ok(createdModel.toObject() as Unit);
     } catch (e) {
@@ -75,38 +49,14 @@ export class UnitService extends CRUDService<Unit> {
           message: 'This unit is not exist',
           statusCode: 404,
         });
-      } else {
-        const targetCourseId = updateUnitDto.courseId ? updateUnitDto.courseId : hasUnit.courseId;
-        const targetDisplayOrder = Number(
-          updateUnitDto.displayOrder ? updateUnitDto.displayOrder : hasUnit.displayOrder,
-        );
-        const hasCourse = await this.courseService.findOne({ _id: targetCourseId });
-        if (!hasCourse) {
-          return err({ message: 'CourseId not found', statusCode: 400 });
-        }
-        const isExistingDisplayOrder = await this.unitModel.findOne({
-          courseId: targetCourseId,
-          displayOrder: targetDisplayOrder,
-          _id: { $ne: id },
-        });
-        if (isExistingDisplayOrder) {
-          return err({
-            message: 'Display order already exists',
-            statusCode: 400,
-          });
-        }
       }
+      // remove displayOrder and courseId from update dto to prevent updating it
+      delete updateUnitDto['displayOrder'];
+      delete updateUnitDto['courseId'];
 
-      hasUnit = await this.unitModel.findOneAndUpdate(
-        { _id: id },
-        {
-          ...updateUnitDto,
-          courseId: updateUnitDto.courseId ? updateUnitDto.courseId : hasUnit.courseId,
-        },
-        {
-          new: true,
-        },
-      );
+      hasUnit = await this.unitModel.findOneAndUpdate({ _id: id }, updateUnitDto, {
+        new: true,
+      });
 
       return ok(hasUnit as Unit);
     } catch (e) {
