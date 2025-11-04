@@ -17,7 +17,7 @@ export class UserController {
     return userOrError.match(
       (v) => {
         return ok({
-          data: v,
+          data: { ...v, password: undefined, role: undefined },
         });
       },
       (e: AppError) => {
