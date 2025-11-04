@@ -11,6 +11,8 @@ import { UnitController } from './controller/unit.controller';
 import { LessonController } from './controller/lesson.controller';
 import { TheoryController } from './controller/theory.controller';
 import { QuestionController } from './controller/question.controller';
+import { FileController } from './controller/file.controller';
+import { UsersController } from './controller/users.controller';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { QuestionController } from './controller/question.controller';
     LessonController,
     TheoryController,
     QuestionController,
+    FileController,
+    UsersController,
   ],
   providers: [
     ApiGatewayService,
