@@ -3,13 +3,12 @@ import { CourseService } from './course.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { err, ok } from 'neverthrow';
 import {
+  AdminGetCourseDto,
   AppError,
-  GetCommonDto,
   Pagination,
   PaginationReq,
   toApiErrorResp,
   toApiOkResp,
-  toQueryCondition,
 } from '@app/constracts';
 import { CreateCourseDto } from '@app/constracts';
 import { UpdateCourseDto } from '@app/constracts';
@@ -22,18 +21,18 @@ export class CourseController {
 
   @Get()
   @MessagePattern({ cmd: 'course.getAllByAdmin' })
-  async getAllByAdmin(@Payload() payload: GetCommonDto) {
-    const { search, sort, filter, page = 1, pageSize = 20 } = payload;
+  async getAllByAdmin(@Payload() payload: AdminGetCourseDto) {
+    const { search, sort, page = 1, pageSize = 20 } = payload;
 
     const sortValue = sort ?? {
       field: 'displayOrder',
       value: 'ASC',
     };
 
-    const queryCondition = toQueryCondition(filter ?? []);
+    const queryCondition = {};
     const resultOrErr = await this.courseService.find(
-      queryCondition,
-      [{ path: 'units', model: Unit.name, options: { sort: { displayOrder: 1 } } }], // populate
+      queryCondition, // filter
+      [], // populate
       {
         page,
         pageSize,
