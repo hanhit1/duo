@@ -19,6 +19,15 @@ export class UnitService extends CRUDService<Unit> {
     super(unitModel);
   }
 
+  async adminGetAllUnitNotPaginate(): Promise<Result<Unit[], AppError>> {
+    const result = await this.unitModel
+      .find()
+      .select('_id title thumbnail')
+      .sort({ displayOrder: 1 })
+      .lean();
+    return ok(result as Unit[]);
+  }
+
   async create(createDto: Partial<Unit>): Promise<Result<Unit, AppError>> {
     try {
       const currentMaxDisplayOrder = await this.unitModel

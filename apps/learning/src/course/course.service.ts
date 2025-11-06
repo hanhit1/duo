@@ -17,6 +17,15 @@ export class CourseService extends CRUDService<Course> {
     super(courseModel);
   }
 
+  async adminGetAllCourseNotPaginate(): Promise<Result<Course[], AppError>> {
+    const result = await this.courseModel
+      .find()
+      .select('_id description thumbnail')
+      .sort({ displayOrder: 1 })
+      .lean();
+    return ok(result as Course[]);
+  }
+
   async userGetAllCourse(pagination: PaginationReq): Promise<Result<[Course[], number], AppError>> {
     const sort: SortReq = {
       field: 'displayOrder',

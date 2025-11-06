@@ -94,6 +94,25 @@ export class CourseController {
   }
 
   @Admin()
+  @Get('admin/all-not-paginate')
+  @ApiOperation({
+    summary: 'Admin view a list of all courses without pagination to implement Course-combobox',
+    description: 'This API will return a list of courses without pagination to Admin',
+  })
+  adminGetAllCourseNotPaginate(@Res() res: FastifyReply) {
+    this.client.send({ cmd: 'course.getAllNotPaginate' }, {}).subscribe({
+      next: (result: any) => {
+        if (result.value) {
+          res.status(200).send(result);
+        } else {
+          res.status(400).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
+    });
+  }
+
+  @Admin()
   @Post()
   adminCreateCourse(@Body() body: CreateCourseDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.create' }, body).subscribe({
