@@ -105,6 +105,20 @@ export class CourseController {
   }
 
   @Get()
+  @MessagePattern({ cmd: 'course.getAllNotPaginate' })
+  async getAllCourseNotPaginate() {
+    const resultOrErr = await this.courseService.adminGetAllCourseNotPaginate();
+    return resultOrErr.match(
+      (items: Course[]) => {
+        return ok(items);
+      },
+      (e: AppError) => {
+        return err(toApiErrorResp(e));
+      },
+    );
+  }
+
+  @Get()
   @MessagePattern({ cmd: 'course.getOne' })
   async getById(@Payload() id: string) {
     const resultOrErr = await this.courseService.findOne({ _id: id });

@@ -65,6 +65,25 @@ export class UnitController {
     });
   }
 
+  @Admin()
+  @Get('admin/all-not-paginate')
+  @ApiOperation({
+    summary: 'Admin view a list of all units without pagination to implement Unit-combobox',
+    description: 'This API will return a list of units without pagination to Admin',
+  })
+  adminGetAllUnitNotPaginate(@Res() res: FastifyReply) {
+    this.client.send({ cmd: 'unit.getAllNotPaginate' }, {}).subscribe({
+      next: (result: any) => {
+        if (result.value) {
+          res.status(200).send(result);
+        } else {
+          res.status(400).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
+    });
+  }
+
   @Get('user/:courseId')
   @ApiOperation({
     summary: 'User view a paginated list of units-lessons by courseId',

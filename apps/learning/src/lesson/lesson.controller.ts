@@ -23,11 +23,6 @@ export class LessonController {
   async getAllByAdmin(@Payload() payload: GetCommonDto) {
     const { search, sort, filter, page = 1, pageSize = 20 } = payload;
 
-    const sortValue = sort ?? {
-      field: 'displayOrder',
-      value: 'ASC',
-    };
-
     const queryCondition = toQueryCondition(filter ?? []);
     const resultOrErr = await this.lessonService.find(
       queryCondition,
@@ -36,7 +31,7 @@ export class LessonController {
         page,
         pageSize,
       },
-      sortValue,
+      sort,
       {}, // projection
       search,
     );
@@ -56,6 +51,20 @@ export class LessonController {
     return resultOrErr.match(
       (items: Lesson[]) => {
         return ok(toApiOkResp(items, pagination));
+      },
+      (e: AppError) => {
+        return err(toApiErrorResp(e));
+      },
+    );
+  }
+
+  @Get()
+  @MessagePattern({ cmd: 'lesson.getAllNotPaginate' })
+  async getAllLessonNotPaginate() {
+    const resultOrErr = await this.lessonService.adminGetAllLessonNotPaginate();
+    return resultOrErr.match(
+      (items: Lesson[]) => {
+        return ok(items);
       },
       (e: AppError) => {
         return err(toApiErrorResp(e));

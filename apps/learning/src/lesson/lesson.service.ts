@@ -19,6 +19,15 @@ export class LessonService extends CRUDService<Lesson> {
     super(lessonModel);
   }
 
+  async adminGetAllLessonNotPaginate(): Promise<Result<Lesson[], AppError>> {
+    const result = await this.lessonModel
+      .find()
+      .select('_id title thumbnail')
+      .sort({ displayOrder: 1 })
+      .lean();
+    return ok(result as Lesson[]);
+  }
+
   async create(createDto: Partial<Lesson>): Promise<Result<Lesson, AppError>> {
     try {
       const currentMaxDisplayOrder = await this.lessonModel
