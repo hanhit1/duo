@@ -1,4 +1,4 @@
-import { Admin, GetCommonDto, PaginationReq } from '@app/constracts';
+import { Admin, AdminGetCourseDto, PaginationReq } from '@app/constracts';
 import { Body, Controller, Get, Inject, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -47,14 +47,6 @@ export class CourseController {
     description: 'This API will return a paginated list of courses to Admin',
   })
   @ApiQuery({
-    name: 'filter',
-    description:
-      'Filter conditions in the format: ["field:operator:value"] - (JSON of array string - need to convert to URL before call API in code)',
-    required: false,
-    type: 'string',
-    example: '["description:cn:first"]',
-  })
-  @ApiQuery({
     name: 'sort',
     description: 'Sorting conditions in the format: "field:order"',
     required: false,
@@ -80,7 +72,7 @@ export class CourseController {
     type: 'string',
     example: 'English',
   })
-  adminGetAllCourse(@Query() dto: GetCommonDto, @Res() res: FastifyReply) {
+  adminGetAllCourse(@Query() dto: AdminGetCourseDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
         if (result.value) {

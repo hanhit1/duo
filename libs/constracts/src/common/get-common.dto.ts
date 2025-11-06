@@ -38,3 +38,4 @@ export class GetCommonDto {
 }
 
 export class AdminGetQuestionsDto extends OmitType(GetCommonDto, ['search'] as const) {}
+export class AdminGetCourseDto extends OmitType(GetCommonDto, ['filter'] as const) {}
