@@ -159,4 +159,23 @@ export class UnitController {
       error: () => res.status(500).send({ message: 'Internal server error' }),
     });
   }
+
+  @Admin()
+  @Get('course/:id')
+  adminGetByCourseId(
+    @Param('id') id: string,
+    @Res() res: FastifyReply,
+    @Query() dto: GetCommonDto,
+  ) {
+    this.client.send({ cmd: 'unit.getByCourseId' }, { courseId: id, ...dto }).subscribe({
+      next: (result: any) => {
+        if (result.value) {
+          res.status(200).send(result);
+        } else {
+          res.status(400).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
+    });
+  }
 }
