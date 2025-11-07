@@ -4,6 +4,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { err, ok } from 'neverthrow';
 import {
   AppError,
+  FilterItem,
   GetCommonDto,
   Pagination,
   PaginationReq,
@@ -163,6 +164,51 @@ export class UnitController {
       (e: AppError) => {
         console.log(e);
         return err({ message: e.message });
+      },
+    );
+  }
+
+  @Get()
+  @MessagePattern({ cmd: 'unit.getByCourseId' })
+  async getUnitsByCourseId(@Payload() payload: { courseId: string } & GetCommonDto) {
+    const { search, sort, page = 1, pageSize = 20, courseId } = payload;
+
+    const enhancedFilter: FilterItem[] = courseId
+      ? [{ field: 'courseId', operator: 'eq', value: courseId }]
+      : [];
+
+    const queryCondition = toQueryCondition(enhancedFilter);
+
+    const resultOrErr = await this.unitService.find(
+      queryCondition,
+      [],
+      {
+        page,
+        pageSize,
+      },
+      sort,
+      {},
+      search,
+    );
+    const countOrError = await this.unitService.count(queryCondition, search);
+    if (countOrError.isErr()) {
+      return err({ message: countOrError.error.message });
+    }
+    const totalRecords = countOrError.value;
+    const totalPages = Math.ceil(totalRecords / pageSize);
+
+    const pagination: Pagination = {
+      page: Number(page),
+      pageSize: Number(pageSize),
+      totalPages: totalPages,
+      totalRecords: totalRecords,
+    };
+    return resultOrErr.match(
+      (items: Unit[]) => {
+        return ok(toApiOkResp(items, pagination));
+      },
+      (e: AppError) => {
+        return err(toApiErrorResp(e));
       },
     );
   }
