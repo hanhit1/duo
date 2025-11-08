@@ -38,12 +38,11 @@ export class QuestionController {
     description: 'This API will return a paginated list of questions to Admin',
   })
   @ApiQuery({
-    name: 'filter',
-    description:
-      'Filter conditions in the format: ["field:operator:value"] - (JSON of array string - need to convert to URL before call API in code)',
+    name: 'lessonId',
+    description: 'Filter questions by lessonId',
     required: false,
     type: 'string',
-    example: '["description:cn:first"]',
+    example: '68e0ff54c70a8e676d5867ce',
   })
   @ApiQuery({
     name: 'sort',
@@ -64,7 +63,10 @@ export class QuestionController {
     required: false,
     type: 'number',
   })
-  adminGetAllQuestions(@Query() dto: AdminGetQuestionsDto, @Res() res: FastifyReply) {
+  adminGetAllQuestions(
+    @Query() dto: AdminGetQuestionsDto & { lessonId?: string },
+    @Res() res: FastifyReply,
+  ) {
     this.client.send({ cmd: 'question.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
         if (result.value) {

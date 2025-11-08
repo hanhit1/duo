@@ -60,12 +60,11 @@ export class TheoryController {
     description: 'This API will return a paginated list of theories to Admin',
   })
   @ApiQuery({
-    name: 'filter',
-    description:
-      'Filter conditions in the format: ["field:operator:value"] - (JSON of array string - need to convert to URL before call API in code)',
+    name: 'unitId',
+    description: 'Filter theories by unitId',
     required: false,
     type: 'string',
-    example: '["description:cn:first"]',
+    example: '68e0b54135010339c4438f57',
   })
   @ApiQuery({
     name: 'sort',
@@ -93,7 +92,7 @@ export class TheoryController {
     type: 'string',
     example: 'English',
   })
-  adminGetAllTheory(@Query() dto: GetCommonDto, @Res() res: FastifyReply) {
+  adminGetAllTheory(@Query() dto: GetCommonDto & { unitId?: string }, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'theory.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
         if (result.value) {

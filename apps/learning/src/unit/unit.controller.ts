@@ -23,10 +23,20 @@ export class UnitController {
 
   @Get()
   @MessagePattern({ cmd: 'unit.getAllByAdmin' })
-  async getAllByAdmin(@Payload() payload: GetCommonDto) {
-    const { search, sort, filter, page = 1, pageSize = 20 } = payload;
+  async getAllByAdmin(@Payload() payload: GetCommonDto & { courseId?: string }) {
+    const { search, sort, page = 1, pageSize = 20, courseId } = payload;
+    const filter: FilterItem[] = [];
+    let sortObj;
+    if (courseId) {
+      filter?.push({ field: 'courseId', operator: 'eq', value: courseId });
+    }
 
-    const queryCondition = toQueryCondition(filter ?? []);
+    if (sort) {
+      const [field, value] = (sort as any).split(':');
+      sortObj = { field, value: (value ?? 'ASC').toUpperCase() };
+    }
+    const queryCondition = toQueryCondition(filter);
+
     const resultOrErr = await this.unitService.find(
       queryCondition,
       [], // populate
@@ -34,7 +44,7 @@ export class UnitController {
         page,
         pageSize,
       },
-      sort,
+      sortObj,
       {}, // projection
       search,
     );

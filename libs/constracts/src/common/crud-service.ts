@@ -66,7 +66,7 @@ export class CRUDService<T> {
       const options = {
         limit: pagination ? pagination.pageSize : undefined,
         skip: pagination ? (pagination.page - 1) * pagination.pageSize : undefined,
-        sort: sort ? { [sort.field]: sort.value.toUpperCase() === 'DESC' ? -1 : 1 } : undefined,
+        sort: sort ? { [sort.field]: sort.value === 'DESC' ? -1 : 1 } : undefined,
       };
       let queryPipeline: mongoose.Query<T[], T, any, any> = this.model.find(
         filter,
