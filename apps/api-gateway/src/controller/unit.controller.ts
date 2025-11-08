@@ -19,12 +19,11 @@ export class UnitController {
     description: 'This API will return a paginated list of units to Admin',
   })
   @ApiQuery({
-    name: 'filter',
-    description:
-      'Filter conditions in the format: ["field:operator:value"] - (JSON of array string - need to convert to URL before call API in code)',
+    name: 'courseId',
+    description: 'Filter units by courseId',
     required: false,
     type: 'string',
-    example: '["description:cn:first"]',
+    example: '68cd5bd514e80cdf75770d9e',
   })
   @ApiQuery({
     name: 'sort',
@@ -52,7 +51,7 @@ export class UnitController {
     type: 'string',
     example: 'English',
   })
-  adminGetAllUnit(@Query() dto: GetCommonDto, @Res() res: FastifyReply) {
+  adminGetAllUnit(@Query() dto: GetCommonDto & { courseId?: string }, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'unit.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
         if (result.value) {

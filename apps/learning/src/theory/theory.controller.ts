@@ -3,6 +3,7 @@ import { TheoryService } from './theory.service';
 import {
   AppError,
   CreateTheoryDto,
+  FilterItem,
   GetCommonDto,
   Pagination,
   PaginationReq,
@@ -21,15 +22,20 @@ export class TheoryController {
 
   @Get()
   @MessagePattern({ cmd: 'theory.getAllByAdmin' })
-  async getAllByAdmin(@Payload() payload: GetCommonDto) {
-    const { search, sort, filter, page = 1, pageSize = 20 } = payload;
+  async getAllByAdmin(@Payload() payload: GetCommonDto & { unitId?: string }) {
+    const { search, sort, page = 1, pageSize = 20, unitId } = payload;
+    let filter: FilterItem[] = [];
 
-    const sortValue = sort ?? {
-      field: 'displayOrder',
-      value: 'ASC',
-    };
+    if (unitId) {
+      filter = [{ field: 'unitId', operator: 'eq', value: unitId }];
+    }
+    let sortValue;
+    if (sort) {
+      const [field, value] = (sort as any).split(':');
+      sortValue = { field, value: (value ?? 'ASC').toUpperCase() };
+    }
 
-    const queryCondition = toQueryCondition(filter ?? []);
+    const queryCondition = toQueryCondition(filter);
     const resultOrErr = await this.theoryService.find(
       queryCondition,
       [], // populate

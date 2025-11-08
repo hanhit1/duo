@@ -19,12 +19,11 @@ export class LessonController {
     description: 'This API will return a paginated list of lessons to Admin',
   })
   @ApiQuery({
-    name: 'filter',
-    description:
-      'Filter conditions in the format: ["field:operator:value"] - (JSON of array string - need to convert to URL before call API in code)',
+    name: 'unitId',
+    description: 'Filter lessons by unitId',
     required: false,
     type: 'string',
-    example: '["description:cn:first"]',
+    example: '68e0b2497fb03278f10e8aaa',
   })
   @ApiQuery({
     name: 'sort',
@@ -52,7 +51,7 @@ export class LessonController {
     type: 'string',
     example: 'English',
   })
-  adminGetAllLesson(@Query() dto: GetCommonDto, @Res() res: FastifyReply) {
+  adminGetAllLesson(@Query() dto: GetCommonDto & { unitId?: string }, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'lesson.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
         if (result.value) {

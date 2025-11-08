@@ -9,6 +9,7 @@ import {
   toApiErrorResp,
   toApiOkResp,
   toQueryCondition,
+  FilterItem,
 } from '@app/constracts';
 import { err, ok } from 'neverthrow';
 import { MessagePattern, Payload } from '@nestjs/microservices';
@@ -20,15 +21,20 @@ export class QuestionController {
 
   @Get()
   @MessagePattern({ cmd: 'question.getAllByAdmin' })
-  async getAllByAdmin(@Payload() payload: GetCommonDto) {
-    const { sort, filter, page = 1, pageSize = 20 } = payload;
+  async getAllByAdmin(@Payload() payload: GetCommonDto & { lessonId?: string }) {
+    const { sort, page = 1, pageSize = 20, lessonId } = payload;
+    let filter: FilterItem[] = [];
 
-    const sortValue = sort ?? {
-      field: 'displayOrder',
-      value: 'ASC',
-    };
+    if (lessonId) {
+      filter = [{ field: 'lessonId', operator: 'eq', value: lessonId }];
+    }
+    let sortValue;
+    if (sort) {
+      const [field, value] = (sort as any).split(':');
+      sortValue = { field, value: (value ?? 'ASC').toUpperCase() };
+    }
 
-    const queryCondition = toQueryCondition(filter ?? []);
+    const queryCondition = toQueryCondition(filter);
     const resultOrErr = await this.questionService.find(
       queryCondition,
       [], // populate
