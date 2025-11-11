@@ -14,7 +14,7 @@ async function bootstrap() {
   );
 
   await app.register(fastifyCors as any, {
-    origin: 'http://localhost:5173',
+    origin: true,
     credentials: true,
   });
 
