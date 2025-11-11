@@ -13,6 +13,7 @@ import { TheoryController } from './controller/theory.controller';
 import { QuestionController } from './controller/question.controller';
 import { FileController } from './controller/file.controller';
 import { UsersController } from './controller/users.controller';
+import { RoleDetailController } from './controller/role-detail.controller';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { UsersController } from './controller/users.controller';
     QuestionController,
     FileController,
     UsersController,
+    RoleDetailController,
   ],
   providers: [
     ApiGatewayService,

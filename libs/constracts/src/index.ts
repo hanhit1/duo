@@ -13,6 +13,7 @@ export * from './users/dto/create-user.dto';
 export * from './users/dto/update.dto';
 export * from './auth/admin.decorator';
 export * from './auth/public.decorator';
+export * from './auth/permission.decorator';
 export * from './learning/dto/create-course.dto';
 export * from './learning/dto/update-course.dto';
 export * from './learning/dto/create-unit.dto';

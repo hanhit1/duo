@@ -1,14 +1,15 @@
 import { AccountRole } from '@app/constracts';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, ObjectId, HydratedDocument } from 'mongoose';
+import mongoose, { Document, ObjectId, HydratedDocument } from 'mongoose';
 import * as mongooseTimestamp from 'mongoose-timestamp';
+import { RoleDetail } from './role-detail.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
 @Schema({ collection: 'user' })
 export class User extends Document<ObjectId> {
   @Prop({ type: String, required: true, default: AccountRole.User })
-  role: AccountRole;
+  role: AccountRole; // should be deleted later
 
   @Prop({ type: String, required: true })
   password: string;
@@ -30,6 +31,9 @@ export class User extends Document<ObjectId> {
 
   @Prop({ type: Date, default: Date.now })
   lastActiveAt: Date;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: RoleDetail.name, required: true })
+  roleId: ObjectId;
 }
 
 const userSchema = SchemaFactory.createForClass(User);

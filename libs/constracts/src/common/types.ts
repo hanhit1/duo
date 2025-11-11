@@ -29,7 +29,8 @@ export type Pagination = {
 
 export type JwtPayload = {
   userId: string;
-  role: AccountRole;
+  roleId: string;
+  permissions: string[];
 };
 
 export enum Operator {

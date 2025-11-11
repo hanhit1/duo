@@ -34,17 +34,21 @@ export class AuthGuard implements CanActivate {
         secret: jwtConstants.secret,
       });
 
-      const isAdminFlag = this.reflector.getAllAndOverride<boolean>(IS_ADMIN_KEY, [
-        context.getHandler(),
-        context.getClass(),
-      ]);
-      if (isAdminFlag) {
-        if (payload.role !== AccountRole.Admin) {
-          throw new UnauthorizedException(ErrorMessage.UNAUTHORIZED);
-        }
-      }
+      // const isAdminFlag = this.reflector.getAllAndOverride<boolean>(IS_ADMIN_KEY, [
+      //   context.getHandler(),
+      //   context.getClass(),
+      // ]);
+      // if (isAdminFlag) {
+      //   if (payload.role !== AccountRole.Admin) {
+      //     throw new UnauthorizedException(ErrorMessage.UNAUTHORIZED);
+      //   }
+      // }
 
-      request.user = payload;
+      request.user = {
+        userId: payload.userId,
+        roleId: payload.roleId,
+        permissions: payload.permissions,
+      };
       return true;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
