@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBody, ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 import { PermissionGuard } from '../guard/auth/permission.guard';
 import { UpdateAccountDto } from '@app/constracts/users/dto/update-account.dto';
@@ -29,6 +29,8 @@ export class AccountController {
     summary: 'Get all accounts for Admin Website',
     description: 'Retrieve a paginated list of all user accounts.',
   })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
   @Permissions('account.view')
   @Get()
   getAllAccountsAdminWebsite(@Query() query: PaginationReq, @Res() res: FastifyReply) {
@@ -87,7 +89,6 @@ export class AccountController {
     summary: 'Update account for Admin Website',
     description: 'Update an existing user account with the provided details.',
   })
-  @ApiBody({ type: UpdateAccountDto })
   @Permissions('account.update')
   @Patch(':id')
   @ApiBody({ type: UpdateAccountDto })

@@ -18,6 +18,7 @@ import { FastifyReply } from 'fastify';
 import { PermissionGuard } from '../guard/auth/permission.guard';
 import { UpdateNameOfRoleDto } from '@app/constracts/users/dto/update-roleDetail.dto';
 import { UpdatePermissionsOfRoleDto } from '@app/constracts/users/dto/update-permissions.dto';
+import { CreateRoleDto } from '@app/constracts/users/dto/create-role.dto';
 
 @ApiTags('Roles')
 @ApiCookieAuth()
@@ -68,9 +69,10 @@ export class RoleDetailController {
     summary: 'Create a new role',
     description: 'This API will create a new role',
   })
+  @ApiBody({ type: CreateRoleDto })
   @Permissions('role.create')
   @Post()
-  createRoleDetail(@Body() dto: { name: string }, @Res() res: FastifyReply) {
+  createRoleDetail(@Body() dto: CreateRoleDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'role-detail.insert' }, dto).subscribe({
       next: (result: any) => {
         if (result.value) {
@@ -84,8 +86,8 @@ export class RoleDetailController {
   }
 
   @ApiOperation({
-    summary: 'Update permissions of a role',
-    description: 'This API will update permissions of a role',
+    summary: 'Update permissions of  all roles',
+    description: 'This API will update permissions of all roles',
   })
   @Permissions('role.setup')
   @Put('setup')

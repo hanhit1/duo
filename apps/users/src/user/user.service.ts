@@ -18,7 +18,11 @@ export class UserService extends CRUDService<User> {
 
   async getProfile(userId: string): Promise<Result<User, AppError>> {
     try {
-      const user = await this.userModel.findById(userId).select('-password').lean();
+      const user = await this.userModel
+        .findById(userId)
+        .select('-password')
+        .populate('roleId')
+        .lean();
       if (!user) {
         return err({
           message: ErrorMessage.USER_NOT_FOUND,
