@@ -14,6 +14,7 @@ import { QuestionController } from './controller/question.controller';
 import { FileController } from './controller/file.controller';
 import { UsersController } from './controller/users.controller';
 import { RoleDetailController } from './controller/role-detail.controller';
+import { AccountController } from './controller/account.controller';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { RoleDetailController } from './controller/role-detail.controller';
     FileController,
     UsersController,
     RoleDetailController,
+    AccountController,
   ],
   providers: [
     ApiGatewayService,

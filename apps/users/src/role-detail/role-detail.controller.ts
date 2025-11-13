@@ -27,6 +27,27 @@ export class RoleDetailController {
     );
   }
 
+  @MessagePattern({ cmd: 'role-detail.options' })
+  async getAllOptionsRoles() {
+    const roleOrError = await this.roleDetailService.find(
+      { name: { $ne: 'User' } },
+      [], // populate
+      undefined, // pagination
+      undefined, // sort
+      { _id: 1, name: 1 }, // projection
+    );
+
+    return roleOrError.match(
+      (v: RoleDetail[]) => {
+        return ok(v);
+      },
+      (e: AppError) => {
+        console.log(e);
+        return err({ message: e.message });
+      },
+    );
+  }
+
   @MessagePattern({ cmd: 'role-detail.getOne' })
   async getRoleById(@Payload() id: string) {
     const roleOrError = await this.roleDetailService.findOne({ _id: id });
@@ -60,7 +81,7 @@ export class RoleDetailController {
   @MessagePattern({ cmd: 'role-detail-name.update' })
   async updateRole(@Payload() payload: { id: string; body: UpdateNameOfRoleDto }) {
     const { id, body } = payload;
-    const roleOrError = await this.roleDetailService.update(id, body);
+    const roleOrError = await this.roleDetailService.updateNameRole(id, body);
     return roleOrError.match(
       (v) => {
         return ok({
@@ -82,7 +103,7 @@ export class RoleDetailController {
 
   @MessagePattern({ cmd: 'role-detail.delete' })
   async deleteRole(@Payload() id: string) {
-    const roleOrError = await this.roleDetailService.remove(id);
+    const roleOrError = await this.roleDetailService.deleteRole(id);
     return roleOrError.match(
       (v) => {
         return ok({

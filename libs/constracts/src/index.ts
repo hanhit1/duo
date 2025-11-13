@@ -9,7 +9,7 @@ export * from './auth/verify-email.dto';
 export * from './auth/change-password-verify.dto';
 export * from './common/redisUtils';
 export * from './common/crud-service';
-export * from './users/dto/create-user.dto';
+export * from './users/dto/create-account.dto';
 export * from './users/dto/update.dto';
 export * from './auth/admin.decorator';
 export * from './auth/public.decorator';

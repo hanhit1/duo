@@ -235,6 +235,8 @@ export class AuthService {
         fullName: verificationData.fullName!,
         avatarImage: verificationData.avatarImage,
         roleId: roleIdUser.isOk() && roleIdUser.value ? roleIdUser.value._id.toString() : '',
+        lastActiveAt: new Date(),
+        streakCount: 0,
       });
 
       if (createUserResult.isErr()) {
