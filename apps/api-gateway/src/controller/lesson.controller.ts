@@ -1,18 +1,31 @@
-import { Admin, GetCommonDto } from '@app/constracts';
-import { Body, Controller, Get, Inject, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import { GetCommonDto, Permissions } from '@app/constracts';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateLessonDto } from '@app/constracts/learning/dto/create-lesson.dto';
 import { UpdateLessonDto } from '@app/constracts/learning/dto/update-lesson.dto';
 import { FastifyReply } from 'fastify';
+import { PermissionGuard } from '../guard/auth/permission.guard';
 
 @ApiTags('Lesson')
 @ApiCookieAuth()
+@UseGuards(PermissionGuard)
 @Controller('lessons')
 export class LessonController {
   constructor(@Inject('LEARNING_SERVICE') private readonly client: ClientProxy) {}
 
-  @Admin()
+  @Permissions('lesson.view')
   @Get('admin')
   @ApiOperation({
     summary: 'Admin view a paginated list of lessons',
@@ -64,7 +77,7 @@ export class LessonController {
     });
   }
 
-  @Admin()
+  @Permissions('lesson.view')
   @Get('admin/all-not-paginate')
   @ApiOperation({
     summary: 'Admin view a list of all lessons without pagination to implement Lesson-combobox',
@@ -83,7 +96,7 @@ export class LessonController {
     });
   }
 
-  @Admin()
+  @Permissions('lesson.create')
   @Post()
   adminCreateLesson(@Body() body: CreateLessonDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'lesson.create' }, body).subscribe({
@@ -98,7 +111,6 @@ export class LessonController {
     });
   }
 
-  @Admin()
   @Get(':id')
   adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'lesson.getOne' }, id).subscribe({
@@ -113,7 +125,7 @@ export class LessonController {
     });
   }
 
-  @Admin()
+  @Permissions('lesson.edit')
   @Patch(':id')
   @ApiBody({ type: UpdateLessonDto })
   adminUpdateLesson(
@@ -133,7 +145,6 @@ export class LessonController {
     });
   }
 
-  @Admin()
   @Get('unit/:id')
   adminGetByUnitId(@Param('id') id: string, @Res() res: FastifyReply, @Query() dto: GetCommonDto) {
     this.client.send({ cmd: 'lesson.getLessonsByUnitId' }, { unitId: id, ...dto }).subscribe({

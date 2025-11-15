@@ -1,17 +1,31 @@
-import { Admin, AdminGetQuestionsDto } from '@app/constracts';
-import { Body, Controller, Get, Inject, Param, Post, Put, Query, Res } from '@nestjs/common';
+import { AdminGetQuestionsDto, Permissions } from '@app/constracts';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Put,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateQuestionDto } from '@app/constracts/learning/dto/create-question.dto';
 import { UpdateQuestionDto } from '@app/constracts/learning/dto/update-question.dto';
 import { FastifyReply } from 'fastify';
+import { PermissionGuard } from '../guard/auth/permission.guard';
 
 @ApiTags('Question')
 @ApiCookieAuth()
+@UseGuards(PermissionGuard)
 @Controller('questions')
 export class QuestionController {
   constructor(@Inject('LEARNING_SERVICE') private readonly client: ClientProxy) {}
 
+  @Permissions('user')
   @Get('user/:lessonId')
   @ApiOperation({
     summary: 'User view a list of questions by lessonId',
@@ -31,7 +45,7 @@ export class QuestionController {
     });
   }
 
-  @Admin()
+  @Permissions('question.view')
   @Get('admin')
   @ApiOperation({
     summary: 'Admin view a paginated list of questions',
@@ -79,7 +93,7 @@ export class QuestionController {
     });
   }
 
-  @Admin()
+  @Permissions('question.create')
   @Post()
   adminCreateQuestion(@Body() body: CreateQuestionDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'question.create' }, body).subscribe({
@@ -94,7 +108,6 @@ export class QuestionController {
     });
   }
 
-  @Admin()
   @Get(':id')
   adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'question.getOne' }, id).subscribe({
@@ -109,7 +122,7 @@ export class QuestionController {
     });
   }
 
-  @Admin()
+  @Permissions('question.edit')
   @Put(':id')
   @ApiBody({ type: UpdateQuestionDto })
   adminUpdateQuestion(

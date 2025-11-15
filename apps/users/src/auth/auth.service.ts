@@ -23,6 +23,7 @@ import * as dotenv from 'dotenv';
 import { EmailService } from 'apps/users/src/email/email.service';
 import { User } from 'apps/users/src/schema/user.schema';
 import { UserService } from '../user/user.service';
+import { RoleDetailService } from '../role-detail/role-detail.service';
 dotenv.config();
 
 @Injectable()
@@ -32,6 +33,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private redisService: RedisService,
+    private roleDetailService: RoleDetailService,
   ) {}
 
   async validateUser(user: User, password: string): Promise<Result<User, AppError>> {
@@ -62,7 +64,7 @@ export class AuthService {
         });
       }
 
-      return this.login(userOrError.value);
+      return await this.login(userOrError.value);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return err({
@@ -73,12 +75,17 @@ export class AuthService {
     }
   }
 
-  login(user: User): Result<GeneratedToken, AppError> {
+  async login(user: User): Promise<Result<GeneratedToken, AppError>> {
     try {
       const payload: JwtPayload = {
         userId: user._id.toString(),
-        role: user.role,
+        roleId: user.roleId.toString(),
+        permissions: [], // to be implemented
       };
+      const permissionsOfUser = await this.roleDetailService.findOne({ _id: user.roleId });
+      if (permissionsOfUser.isOk() && permissionsOfUser.value) {
+        payload.permissions = permissionsOfUser.value.permissions;
+      }
       const access_token = this.jwtService.sign(payload, { secret: jwtConstants.secret });
       const refresh_token = this.jwtService.sign(payload, {
         secret: jwtConstants.refresh_secret,
@@ -219,12 +226,17 @@ export class AuthService {
         });
       }
 
+      const roleIdUser = await this.roleDetailService.findOne({ name: 'User' });
+
       // Create user account
       const createUserResult = await this.usersService.createUser({
         email: verifyDto.email,
         password: verificationData.password!,
         fullName: verificationData.fullName!,
         avatarImage: verificationData.avatarImage,
+        roleId: roleIdUser.isOk() && roleIdUser.value ? roleIdUser.value._id.toString() : '',
+        lastActiveAt: new Date(),
+        streakCount: 0,
       });
 
       if (createUserResult.isErr()) {
@@ -234,7 +246,7 @@ export class AuthService {
       await this.redisService.del(EmailValidationKey, verifyDto.email);
       const createdUser = createUserResult.value;
 
-      const dataLogin = this.login(createdUser);
+      const dataLogin = await this.login(createdUser);
       return dataLogin;
     } catch (error) {
       return err({

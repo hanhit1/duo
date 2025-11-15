@@ -1,17 +1,31 @@
-import { Admin, AdminGetCourseDto, PaginationReq } from '@app/constracts';
-import { Body, Controller, Get, Inject, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import { AdminGetCourseDto, PaginationReq, Permissions } from '@app/constracts';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateCourseDto } from '@app/constracts/learning/dto/create-course.dto';
 import { UpdateCourseDto } from '@app/constracts/learning/dto/update-course.dto';
 import { FastifyReply } from 'fastify';
+import { PermissionGuard } from '../guard/auth/permission.guard';
 
 @ApiTags('Course')
 @ApiCookieAuth()
+@UseGuards(PermissionGuard)
 @Controller('courses')
 export class CourseController {
   constructor(@Inject('LEARNING_SERVICE') private readonly client: ClientProxy) {}
 
+  @Permissions('user')
   @Get('user')
   @ApiOperation({
     summary: 'User view a paginated list of courses',
@@ -40,7 +54,7 @@ export class CourseController {
     });
   }
 
-  @Admin()
+  @Permissions('course.view')
   @Get('admin')
   @ApiOperation({
     summary: 'Admin view a paginated list of courses',
@@ -85,7 +99,7 @@ export class CourseController {
     });
   }
 
-  @Admin()
+  @Permissions('course.view')
   @Get('admin/all-not-paginate')
   @ApiOperation({
     summary: 'Admin view a list of all courses without pagination to implement Course-combobox',
@@ -104,7 +118,7 @@ export class CourseController {
     });
   }
 
-  @Admin()
+  @Permissions('course.create')
   @Post()
   adminCreateCourse(@Body() body: CreateCourseDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.create' }, body).subscribe({
@@ -119,7 +133,6 @@ export class CourseController {
     });
   }
 
-  @Admin()
   @Get(':id')
   adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.getOne' }, id).subscribe({
@@ -134,7 +147,7 @@ export class CourseController {
     });
   }
 
-  @Admin()
+  @Permissions('course.edit')
   @Patch(':id')
   @ApiBody({ type: UpdateCourseDto })
   adminUpdateCourse(@Param('id') id: string, @Body() body, @Res() res: FastifyReply) {
