@@ -2,6 +2,7 @@ import { AdminGetQuestionsDto, Permissions } from '@app/constracts';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -131,6 +132,21 @@ export class QuestionController {
     @Res() res: FastifyReply,
   ) {
     this.client.send({ cmd: 'question.update' }, { id, body }).subscribe({
+      next: (result: any) => {
+        if (result.value) {
+          res.status(200).send(result);
+        } else {
+          res.status(400).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
+    });
+  }
+
+  @Permissions('question.delete')
+  @Delete(':id')
+  adminDeleteQuestion(@Param('id') id: string, @Res() res: FastifyReply) {
+    this.client.send({ cmd: 'question.remove' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {
           res.status(200).send(result);
