@@ -77,4 +77,26 @@ export class LessonService extends CRUDService<Lesson> {
       });
     }
   }
+  async getFirstLessonOfUnit(unitId: string): Promise<Result<Lesson, AppError>> {
+    try {
+      const lesson = await this.lessonModel
+        .findOne({ unitId: unitId })
+        .sort({ displayOrder: 1 })
+        .lean();
+      if (lesson) {
+        return ok(lesson as Lesson);
+      } else {
+        return err({
+          message: 'No lessons found for the specified unit.',
+          statusCode: 404,
+        });
+      }
+    } catch (e) {
+      return err({
+        message: 'Error when retrieving the first lesson of the unit',
+        statusCode: 500,
+        cause: e,
+      });
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 
 import * as dotenv from 'dotenv';
 import { Lesson, lessonSchema } from '../schema/lesson.schema';
@@ -9,7 +9,10 @@ import { UnitModule } from '../unit/unit.module';
 dotenv.config();
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Lesson.name, schema: lessonSchema }]), UnitModule],
+  imports: [
+    MongooseModule.forFeature([{ name: Lesson.name, schema: lessonSchema }]),
+    forwardRef(() => UnitModule),
+  ],
   controllers: [LessonController],
   providers: [LessonService],
   exports: [LessonService],

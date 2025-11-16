@@ -9,6 +9,7 @@ import { UnitModule } from './unit/unit.module';
 import { LessonModule } from './lesson/lesson.module';
 import { TheoryModule } from './theory/theory.module';
 import { QuestionModule } from './question/question.module';
+import { ProgressModule } from './progress/progress.module';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ dotenv.config();
     LessonModule,
     TheoryModule,
     QuestionModule,
+    ProgressModule,
   ],
   controllers: [LearningController],
   providers: [LearningService],
