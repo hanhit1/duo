@@ -11,7 +11,6 @@ export type ProgressDocument = HydratedDocument<Progress>;
 export class Progress extends Document<ObjectId> {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
     required: true,
     unique: true,
     index: true,

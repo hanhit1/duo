@@ -16,17 +16,10 @@ import { CreateUnitDto } from '@app/constracts';
 import { UpdateUnitDto } from '@app/constracts';
 import { Unit } from '../schema/unit.schema';
 import { Lesson } from '../schema/lesson.schema';
-import { ProgressService } from '../progress/progress.service';
-import { LessonService } from '../lesson/lesson.service';
-import { Progress } from '../schema/progress.schema';
 
 @Controller()
 export class UnitController {
-  constructor(
-    private readonly unitService: UnitService,
-    private readonly progressService: ProgressService,
-    private readonly lessonService: LessonService,
-  ) {}
+  constructor(private readonly unitService: UnitService) {}
 
   @Get()
   @MessagePattern({ cmd: 'unit.getAllByAdmin' })
@@ -95,7 +88,7 @@ export class UnitController {
   @Get()
   @MessagePattern({ cmd: 'unitAndLesson.getAllByUser' })
   async getAllByUser(@Payload() payload: { courseId: string; userId: string } & PaginationReq) {
-    const { page, pageSize, courseId, userId } = payload;
+    const { page, pageSize, courseId } = payload;
     const sortValue = { field: 'displayOrder', value: 'ASC' };
 
     const resultOrErr = await this.unitService.find(
@@ -130,42 +123,42 @@ export class UnitController {
       totalRecords: totalRecords,
     };
 
-    let progress: Progress;
+    // let progress: Progress;
 
-    const progressRecordsOrErr = await this.progressService.findOne({
-      user: userId,
-    });
+    // const progressRecordsOrErr = await this.progressService.findOne({
+    //   user: userId,
+    // });
 
-    if (progressRecordsOrErr.isErr()) {
-      return err({ message: progressRecordsOrErr.error.message });
-    }
-    const progressRecords = progressRecordsOrErr.value;
+    // if (progressRecordsOrErr.isErr()) {
+    //   return err({ message: progressRecordsOrErr.error.message });
+    // }
+    // const progressRecords = progressRecordsOrErr.value;
 
-    progress = progressRecords;
+    // progress = progressRecords;
 
-    if (!progressRecords) {
-      const firstLesson = await this.lessonService.getFirstLessonOfUnit(
-        resultOrErr.value[0]._id.toString(),
-      );
+    // if (!progressRecords) {
+    //   const firstLesson = await this.lessonService.getFirstLessonOfUnit(
+    //     resultOrErr.value[0]._id.toString(),
+    //   );
 
-      if (firstLesson.isErr()) {
-        return err({ message: firstLesson.error.message });
-      }
+    //   if (firstLesson.isErr()) {
+    //     return err({ message: firstLesson.error.message });
+    //   }
 
-      const createdProgress = await this.progressService.create({
-        user: userId,
-        course: courseId,
-        lesson: firstLesson.value._id.toString(),
-        unit: resultOrErr.value[0]._id.toString(),
-      });
-      if (createdProgress.isErr()) {
-        return err({ message: createdProgress.error.message });
-      }
-      progress = createdProgress.value;
-    }
+    //   const createdProgress = await this.progressService.create({
+    //     user: userId,
+    //     course: courseId,
+    //     lesson: firstLesson.value._id.toString(),
+    //     unit: resultOrErr.value[0]._id.toString(),
+    //   });
+    //   if (createdProgress.isErr()) {
+    //     return err({ message: createdProgress.error.message });
+    //   }
+    //   progress = createdProgress.value;
+    // }
     return resultOrErr.match(
       (items: Unit[]) => {
-        return ok(toApiOkResp({ ...items, progress }, pagination));
+        return ok(toApiOkResp({ items }, pagination));
       },
       (e: AppError) => {
         return err(toApiErrorResp(e));
