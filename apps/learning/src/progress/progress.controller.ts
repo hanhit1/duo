@@ -97,17 +97,17 @@ export class ProgressController {
             !unit.lessons || unit.lessons.length === 0
               ? []
               : (unit.lessons ?? []).map((lesson) => {
-                  const isCompleted =
-                    progress && lesson.displayOrder < lessonCurrent.value.displayOrder;
+                  const isLocked =
+                    progress && lesson.displayOrder > lessonCurrent.value.displayOrder;
                   return {
                     ...lesson,
-                    isCompleted,
+                    isLocked,
                   };
                 });
           return {
             ...unit,
             lessons: lessonsWithProgress,
-            isCompleted: progress && unit.displayOrder < unitCurrent.value.displayOrder,
+            isLocked: progress && unit.displayOrder > unitCurrent.value.displayOrder,
           };
         });
         return ok(toApiOkResp({ result, progress }));
