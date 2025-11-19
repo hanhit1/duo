@@ -87,7 +87,7 @@ export class UnitController {
 
   @Get()
   @MessagePattern({ cmd: 'unitAndLesson.getAllByUser' })
-  async getAllByUser(@Payload() payload: { courseId: string } & PaginationReq) {
+  async getAllByUser(@Payload() payload: { courseId: string; userId: string } & PaginationReq) {
     const { page, pageSize, courseId } = payload;
     const sortValue = { field: 'displayOrder', value: 'ASC' };
 
@@ -100,6 +100,15 @@ export class UnitController {
       },
       sortValue,
     );
+
+    if (resultOrErr.isErr()) {
+      return err({ message: resultOrErr.error.message });
+    }
+
+    if (resultOrErr.value.length == 0) {
+      return err({ message: 'No units found for the specified course.' });
+    }
+
     const countOrError = await this.unitService.count({ courseId });
     if (countOrError.isErr()) {
       return err({ message: countOrError.error.message });
@@ -113,9 +122,43 @@ export class UnitController {
       totalPages: totalPages,
       totalRecords: totalRecords,
     };
+
+    // let progress: Progress;
+
+    // const progressRecordsOrErr = await this.progressService.findOne({
+    //   user: userId,
+    // });
+
+    // if (progressRecordsOrErr.isErr()) {
+    //   return err({ message: progressRecordsOrErr.error.message });
+    // }
+    // const progressRecords = progressRecordsOrErr.value;
+
+    // progress = progressRecords;
+
+    // if (!progressRecords) {
+    //   const firstLesson = await this.lessonService.getFirstLessonOfUnit(
+    //     resultOrErr.value[0]._id.toString(),
+    //   );
+
+    //   if (firstLesson.isErr()) {
+    //     return err({ message: firstLesson.error.message });
+    //   }
+
+    //   const createdProgress = await this.progressService.create({
+    //     user: userId,
+    //     course: courseId,
+    //     lesson: firstLesson.value._id.toString(),
+    //     unit: resultOrErr.value[0]._id.toString(),
+    //   });
+    //   if (createdProgress.isErr()) {
+    //     return err({ message: createdProgress.error.message });
+    //   }
+    //   progress = createdProgress.value;
+    // }
     return resultOrErr.match(
       (items: Unit[]) => {
-        return ok(toApiOkResp(items, pagination));
+        return ok(toApiOkResp({ items }, pagination));
       },
       (e: AppError) => {
         return err(toApiErrorResp(e));

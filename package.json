@@ -19,7 +19,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/duo/test/jest-e2e.json",
     "docker": "docker compose up -d",
-    "docker:build": "docker compose up -d --build"
+    "docker:build": "docker compose up -d --build",
+    "start:gateway": "nest start api-gateway",
+    "start:users": "nest start users",
+    "start:learning": "nest start learning"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

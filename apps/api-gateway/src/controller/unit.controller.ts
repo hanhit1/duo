@@ -1,4 +1,4 @@
-import { GetCommonDto, PaginationReq, Permissions } from '@app/constracts';
+import { CustomRequest, GetCommonDto, PaginationReq, Permissions } from '@app/constracts';
 import {
   Body,
   Controller,
@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -109,22 +110,27 @@ export class UnitController {
     @Param('courseId') courseId: string,
     @Query('page') page = 1,
     @Query('pageSize') pageSize = 10,
+    @Req() req: CustomRequest,
     @Res() res: FastifyReply,
   ) {
     const payload: PaginationReq = {
       page,
       pageSize,
     };
-    this.client.send({ cmd: 'unitAndLesson.getAllByUser' }, { courseId, ...payload }).subscribe({
-      next: (result: any) => {
-        if (result.value) {
-          res.status(200).send(result);
-        } else {
-          res.status(400).send({ message: result.error.message });
-        }
-      },
-      error: () => res.status(500).send({ message: 'Internal server error' }),
-    });
+    const userId = req.user.userId;
+
+    this.client
+      .send({ cmd: 'unitAndLesson.getAllByUser' }, { courseId, userId, ...payload })
+      .subscribe({
+        next: (result: any) => {
+          if (result.value) {
+            res.status(200).send(result);
+          } else {
+            res.status(400).send({ message: result.error.message });
+          }
+        },
+        error: () => res.status(500).send({ message: 'Internal server error' }),
+      });
   }
 
   @Permissions('unit.create')

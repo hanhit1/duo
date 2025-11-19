@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, ObjectId, HydratedDocument } from 'mongoose';
 import * as mongooseTimestamp from 'mongoose-timestamp';
 import { Course } from './course.schema';
+import { Lesson } from './lesson.schema';
 
 export type UnitDocument = HydratedDocument<Unit>;
 
@@ -21,6 +22,8 @@ export class Unit extends Document<ObjectId> {
 
   @Prop(String)
   thumbnail?: string;
+
+  lessons?: Lesson[];
 }
 
 const unitSchema = SchemaFactory.createForClass(Unit);
