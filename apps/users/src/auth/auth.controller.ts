@@ -15,7 +15,7 @@ import {
   VerifyEmailDto,
 } from '@app/constracts';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { User } from '../schema/user.schema';
+
 import { err, ok } from 'neverthrow';
 
 @ApiTags('default')
@@ -39,7 +39,14 @@ export class AuthController {
       return err({ message: ErrorMessage.UNAUTHORIZED });
     }
     const validatedOrError = await this.authService.validateUser(user, loginDto.password);
-    const genTokenOrError = validatedOrError.andThen((u: User) => this.authService.login(u));
+    if (validatedOrError.isErr()) {
+      return err({ message: ErrorMessage.UNAUTHORIZED });
+    }
+
+    const userValidated = validatedOrError.value;
+
+    // Gọi service async bình thường
+    const genTokenOrError = await this.authService.login(userValidated);
 
     return genTokenOrError.match(
       (v: GeneratedToken) => {

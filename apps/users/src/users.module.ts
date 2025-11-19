@@ -9,6 +9,7 @@ import { RedisModule } from './redis/redis.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { UserModule } from './user/user.module';
+import { RoleDetailModule } from './role-detail/role-detail.module';
 dotenv.config();
 
 @Module({
@@ -31,6 +32,7 @@ dotenv.config();
     AuthModule,
     EmailModule,
     UserModule,
+    RoleDetailModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

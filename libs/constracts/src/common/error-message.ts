@@ -20,4 +20,9 @@ export const ErrorMessage = {
   UNAUTHORIZED: 'Unauthorized',
   LOGIN_FAILED: 'Login failed',
   ERROR_WHEN_GENERATING_TOKEN: 'Error when generating token',
+  EMAIL_HAS_BEEN_EXISTED: 'Email has been existed',
+  CANNOT_CHANGE_ADMIN_ROLE_NAME: 'Cannot change Admin role name',
+  CANNOT_UPDATE_ADMIN_ACCOUNT: 'Cannot update Admin account',
+  CANNOT_DELETE_ADMIN_ROLE: 'Cannot delete Admin role',
+  USER_NOT_FOUND_OR_TRYING_TO_DELETE_ADMIN: 'User not found or trying to delete Admin account',
 };

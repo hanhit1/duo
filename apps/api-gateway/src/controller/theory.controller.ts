@@ -1,4 +1,4 @@
-import { Admin, GetCommonDto, PaginationReq } from '@app/constracts';
+import { GetCommonDto, PaginationReq, Permissions } from '@app/constracts';
 import {
   Body,
   Controller,
@@ -10,19 +10,23 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateTheoryDto } from '@app/constracts/learning/dto/create-theory.dto';
 import { UpdateTheoryDto } from '@app/constracts/learning/dto/update-theory.dto';
 import { FastifyReply } from 'fastify';
+import { PermissionGuard } from '../guard/auth/permission.guard';
 
 @ApiTags('Theory')
 @ApiCookieAuth()
+@UseGuards(PermissionGuard)
 @Controller('theories')
 export class TheoryController {
   constructor(@Inject('LEARNING_SERVICE') private readonly client: ClientProxy) {}
 
+  @Permissions('user')
   @Get('user/:unitId')
   @ApiOperation({
     summary: 'User view a paginated list of theories by unitId',
@@ -53,7 +57,7 @@ export class TheoryController {
     });
   }
 
-  @Admin()
+  @Permissions('theory.view')
   @Get('admin')
   @ApiOperation({
     summary: 'Admin view a paginated list of theories',
@@ -105,7 +109,7 @@ export class TheoryController {
     });
   }
 
-  @Admin()
+  @Permissions('theory.create')
   @Post()
   adminCreateTheory(@Body() body: CreateTheoryDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'theory.create' }, body).subscribe({
@@ -120,7 +124,6 @@ export class TheoryController {
     });
   }
 
-  @Admin()
   @Get(':id')
   adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'theory.getOne' }, id).subscribe({
@@ -135,7 +138,7 @@ export class TheoryController {
     });
   }
 
-  @Admin()
+  @Permissions('theory.edit')
   @Patch(':id')
   @ApiBody({ type: UpdateTheoryDto })
   adminUpdateTheory(
@@ -155,7 +158,7 @@ export class TheoryController {
     });
   }
 
-  @Admin()
+  @Permissions('theory.delete')
   @Delete(':id')
   adminDeleteTheory(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'theory.remove' }, id).subscribe({

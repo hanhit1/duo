@@ -1,18 +1,32 @@
-import { Admin, CustomRequest, GetCommonDto, PaginationReq } from '@app/constracts';
-import { Body, Controller, Get, Inject, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
+import { CustomRequest, GetCommonDto, PaginationReq, Permissions } from '@app/constracts';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateUnitDto } from '@app/constracts/learning/dto/create-unit.dto';
 import { UpdateUnitDto } from '@app/constracts/learning/dto/update-unit.dto';
 import { FastifyReply } from 'fastify';
+import { PermissionGuard } from '../guard/auth/permission.guard';
 
 @ApiTags('Unit')
 @ApiCookieAuth()
+@UseGuards(PermissionGuard)
 @Controller('units')
 export class UnitController {
   constructor(@Inject('LEARNING_SERVICE') private readonly client: ClientProxy) {}
 
-  @Admin()
+  @Permissions('unit.view')
   @Get('admin')
   @ApiOperation({
     summary: 'Admin view a paginated list of units',
@@ -64,7 +78,7 @@ export class UnitController {
     });
   }
 
-  @Admin()
+  @Permissions('unit.view')
   @Get('admin/all-not-paginate')
   @ApiOperation({
     summary: 'Admin view a list of all units without pagination to implement Unit-combobox',
@@ -83,6 +97,7 @@ export class UnitController {
     });
   }
 
+  @Permissions('user')
   @Get('user/:courseId')
   @ApiOperation({
     summary: 'User view a paginated list of units-lessons by courseId',
@@ -118,7 +133,7 @@ export class UnitController {
       });
   }
 
-  @Admin()
+  @Permissions('unit.create')
   @Post()
   adminCreateUnit(@Body() body: CreateUnitDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'unit.create' }, body).subscribe({
@@ -133,7 +148,6 @@ export class UnitController {
     });
   }
 
-  @Admin()
   @Get(':id')
   adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'unit.getOne' }, id).subscribe({
@@ -148,7 +162,7 @@ export class UnitController {
     });
   }
 
-  @Admin()
+  @Permissions('unit.edit')
   @Patch(':id')
   @ApiBody({ type: UpdateUnitDto })
   adminUpdateUnit(@Param('id') id: string, @Body() body: UpdateUnitDto, @Res() res: FastifyReply) {
@@ -164,7 +178,6 @@ export class UnitController {
     });
   }
 
-  @Admin()
   @Get('course/:id')
   adminGetByCourseId(
     @Param('id') id: string,
