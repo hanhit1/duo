@@ -99,4 +99,35 @@ export class LessonService extends CRUDService<Lesson> {
       });
     }
   }
+
+  async findOneNextLesson(displayOrder: number, unitId: string): Promise<Result<Lesson, AppError>> {
+    try {
+      const lesson = await this.lessonModel
+        .findOne({ displayOrder: { $gt: displayOrder }, unitId: unitId })
+        .sort({ displayOrder: 1 })
+        .exec();
+
+      if (!lesson) {
+        const unitOrErr = await this.unitService.findOneNextUnit(displayOrder, unitId);
+        if (unitOrErr.isErr()) {
+          return err({ message: unitOrErr.error.message });
+        }
+
+        const nextUnit = unitOrErr.value;
+        const firstLessonOfNextUnit = await this.lessonModel
+          .findOne({ unitId: nextUnit._id.toString() })
+          .sort({ displayOrder: 1 })
+          .exec();
+
+        if (!firstLessonOfNextUnit) {
+          return err({ message: 'No next lesson found.' });
+        }
+        return ok(firstLessonOfNextUnit as Lesson);
+      }
+
+      return ok(lesson as Lesson);
+    } catch (error) {
+      return err({ message: 'Failed to retrieve next lesson.', cause: error });
+    }
+  }
 }

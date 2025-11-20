@@ -86,4 +86,26 @@ export class CourseService extends CRUDService<Course> {
       });
     }
   }
+
+  async findOneNextCourse(courseId: string): Promise<Result<Course, AppError>> {
+    try {
+      const course = await this.courseModel.findOne({ _id: courseId }).exec();
+
+      if (!course) {
+        return err({ message: 'No next course found.' });
+      }
+
+      const nextCourse = await this.courseModel
+        .findOne({ displayOrder: { $gt: course.displayOrder } })
+        .sort({ displayOrder: 1 })
+        .exec();
+
+      if (!nextCourse) {
+        return err({ message: 'No next course found.' });
+      }
+      return ok(nextCourse as Course);
+    } catch (error) {
+      return err({ message: 'Failed to retrieve next lesson.', cause: error });
+    }
+  }
 }

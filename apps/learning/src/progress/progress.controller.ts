@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Put } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppError, toApiErrorResp, toApiOkResp } from '@app/constracts';
@@ -116,5 +116,86 @@ export class ProgressController {
         return err(toApiErrorResp(e));
       },
     );
+  }
+
+  @Put()
+  @MessagePattern({ cmd: 'progress.userUpdate' })
+  async userUpdate(@Payload() payload: { userId: string; lessonId: string; unitId: string }) {
+    const { userId, lessonId, unitId } = payload;
+
+    const progressOrErr = await this.progressService.findOne({ user: userId });
+
+    if (progressOrErr.isErr()) {
+      return err({ message: progressOrErr.error.message });
+    }
+
+    const progress = progressOrErr.value;
+
+    if (!progress) {
+      return err({ message: 'Progress record not found for the user.' });
+    } else {
+      const currentLessonOrErr = await this.lessonService.findOne({ _id: lessonId });
+
+      if (currentLessonOrErr.isErr()) {
+        return err({ message: currentLessonOrErr.error.message });
+      }
+
+      const currentLesson = currentLessonOrErr.value;
+
+      if (!currentLesson) {
+        return err({ message: 'Current lesson not found.' });
+      }
+
+      const progressLessonOrErr = await this.lessonService.findOne({
+        _id: progress.lesson.toString(),
+      });
+
+      if (progressLessonOrErr.isErr()) {
+        return err({ message: progressLessonOrErr.error.message });
+      }
+
+      const progressLesson = progressLessonOrErr.value;
+
+      if (!progressLesson) {
+        return err({ message: 'Progress lesson not found.' });
+      }
+
+      if (currentLesson.displayOrder < progressLesson.displayOrder) {
+        return ok(toApiOkResp({ result: progress }));
+      }
+
+      const newLessonOrErr = await this.lessonService.findOneNextLesson(
+        progressLesson.displayOrder,
+        unitId,
+      );
+
+      if (newLessonOrErr.isErr()) {
+        return err({ message: newLessonOrErr.error.message });
+      }
+
+      const newLesson = newLessonOrErr.value;
+
+      const unitOfNewLesson = await this.unitService.findOne({ _id: newLesson.unitId.toString() });
+
+      if (unitOfNewLesson.isErr()) {
+        return err({ message: unitOfNewLesson.error.message });
+      }
+
+      if (!unitOfNewLesson.value) {
+        return err({ message: 'Unit of new lesson not found.' });
+      }
+
+      const updatedProgressOrErr = await this.progressService.update(progress._id.toString(), {
+        lesson: newLesson._id.toString(),
+        unit: unitOfNewLesson.value._id.toString(),
+        course: unitOfNewLesson.value.courseId.toString(),
+      });
+
+      if (updatedProgressOrErr.isErr()) {
+        return err({ message: updatedProgressOrErr.error.message });
+      }
+
+      return ok(toApiOkResp({ result: updatedProgressOrErr.value }));
+    }
   }
 }
