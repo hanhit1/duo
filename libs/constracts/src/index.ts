@@ -26,3 +26,4 @@ export * from './learning/dto/create-question.dto';
 export * from './learning/dto/update-question.dto';
 export * from './common/get-common.dto';
 export * from './file/cloudinary';
+export * from './learning/dto/update-progress.dto';

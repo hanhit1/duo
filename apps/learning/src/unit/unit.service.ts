@@ -77,4 +77,59 @@ export class UnitService extends CRUDService<Unit> {
       });
     }
   }
+
+  async findOneNextUnit(displayOrder: number, courseId: string): Promise<Result<Unit, AppError>> {
+    try {
+      const unit = await this.unitModel
+        .findOne({ displayOrder: { $gt: displayOrder }, courseId: courseId })
+        .sort({ displayOrder: 1 })
+        .exec();
+
+      if (!unit) {
+        const nextCourseOrErr = await this.courseService.findOneNextCourse(courseId);
+        if (nextCourseOrErr.isErr()) {
+          return err({ message: nextCourseOrErr.error.message });
+        }
+
+        const nextCourse = nextCourseOrErr.value;
+        const firstUnitOfNextCourse = await this.unitModel
+          .findOne({ courseId: nextCourse._id.toString() })
+          .sort({ displayOrder: 1 })
+          .exec();
+
+        if (!firstUnitOfNextCourse) {
+          return err({ message: 'No next unit found.' });
+        }
+        return ok(firstUnitOfNextCourse as Unit);
+      }
+
+      return ok(unit as Unit);
+    } catch (error) {
+      return err({ message: 'Failed to retrieve next lesson.', cause: error });
+    }
+  }
+
+  async getFirstUnitOfCourse(courseId: string): Promise<Result<Unit, AppError>> {
+    try {
+      const unit = await this.unitModel
+        .findOne({ courseId: courseId })
+        .sort({ displayOrder: 1 })
+        .lean();
+
+      if (unit) {
+        return ok(unit as Unit);
+      } else {
+        return err({
+          message: 'No units found for the specified course.',
+          statusCode: 404,
+        });
+      }
+    } catch (e) {
+      return err({
+        message: 'Error when retrieving the first unit of the course',
+        statusCode: 500,
+        cause: e,
+      });
+    }
+  }
 }
