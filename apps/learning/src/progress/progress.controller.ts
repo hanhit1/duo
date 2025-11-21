@@ -1,4 +1,4 @@
-import { Controller, Get, Put } from '@nestjs/common';
+import { Controller, Get, Patch } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppError, toApiErrorResp, toApiOkResp } from '@app/constracts';
@@ -8,6 +8,8 @@ import { Lesson } from '../schema/lesson.schema';
 import { Progress } from '../schema/progress.schema';
 import { err, ok } from 'neverthrow';
 import { Unit } from '../schema/unit.schema';
+import { CourseService } from '../course/course.service';
+import { Course } from '../schema/course.schema';
 
 @Controller()
 export class ProgressController {
@@ -15,6 +17,7 @@ export class ProgressController {
     private readonly progressService: ProgressService,
     private readonly unitService: UnitService,
     private readonly lessonService: LessonService,
+    private readonly courseService: CourseService,
   ) {}
 
   @Get()
@@ -118,7 +121,7 @@ export class ProgressController {
     );
   }
 
-  @Put()
+  @Patch()
   @MessagePattern({ cmd: 'progress.userUpdate' })
   async userUpdate(@Payload() payload: { userId: string; lessonId: string; unitId: string }) {
     const { userId, lessonId, unitId } = payload;
@@ -197,5 +200,87 @@ export class ProgressController {
 
       return ok(toApiOkResp({ result: updatedProgressOrErr.value }));
     }
+  }
+
+  @Get()
+  @MessagePattern({ cmd: 'courseAndProgress.getAllByUser' })
+  async getCourseByUser(@Payload() payload: { userId: string }) {
+    const { userId } = payload;
+    const sortValue = { field: 'displayOrder', value: 'ASC' };
+
+    const resultOrErr = await this.courseService.find(undefined, undefined, undefined, sortValue);
+
+    if (resultOrErr.isErr()) {
+      return err({ message: resultOrErr.error.message });
+    }
+
+    if (resultOrErr.value.length == 0) {
+      return err({ message: 'No courses found for the specified course.' });
+    }
+
+    let progress: Progress;
+
+    const progressRecordsOrErr = await this.progressService.findOne({
+      user: userId,
+    });
+
+    if (progressRecordsOrErr.isErr()) {
+      return err({ message: progressRecordsOrErr.error.message });
+    }
+    const progressRecords = progressRecordsOrErr.value;
+
+    progress = progressRecords;
+
+    if (!progressRecords) {
+      const firstUnit = await this.unitService.getFirstUnitOfCourse(
+        resultOrErr.value[0]._id.toString(),
+      );
+      if (firstUnit.isErr()) {
+        return err({ message: firstUnit.error.message });
+      }
+
+      const firstLesson = await this.lessonService.getFirstLessonOfUnit(
+        firstUnit.value._id.toString(),
+      );
+
+      if (firstLesson.isErr()) {
+        return err({ message: firstLesson.error.message });
+      }
+
+      const createdProgress = await this.progressService.create({
+        user: userId,
+        course: resultOrErr.value[0]._id.toString(),
+        lesson: firstLesson.value._id.toString(),
+        unit: firstUnit.value._id.toString(),
+      });
+      if (createdProgress.isErr()) {
+        return err({ message: createdProgress.error.message });
+      }
+      progress = createdProgress.value;
+    }
+
+    const courseCurrent = await this.courseService.findOne({ _id: progress.course.toString() });
+    if (courseCurrent.isErr()) {
+      return err({ message: courseCurrent.error.message });
+    }
+
+    if (!courseCurrent.value) {
+      return err({ message: 'Current unit not found.' });
+    }
+
+    return resultOrErr.match(
+      (items: Course[]) => {
+        const result = items.map((course) => {
+          return {
+            ...course,
+            isLocked: progress && course.displayOrder > courseCurrent.value.displayOrder,
+          };
+        });
+        return ok(toApiOkResp({ result, progress }));
+      },
+      (e: AppError) => {
+        return err(toApiErrorResp(e));
+      },
+    );
   }
 }

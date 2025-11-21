@@ -108,4 +108,28 @@ export class UnitService extends CRUDService<Unit> {
       return err({ message: 'Failed to retrieve next lesson.', cause: error });
     }
   }
+
+  async getFirstUnitOfCourse(courseId: string): Promise<Result<Unit, AppError>> {
+    try {
+      const unit = await this.unitModel
+        .findOne({ courseId: courseId })
+        .sort({ displayOrder: 1 })
+        .lean();
+
+      if (unit) {
+        return ok(unit as Unit);
+      } else {
+        return err({
+          message: 'No units found for the specified course.',
+          statusCode: 404,
+        });
+      }
+    } catch (e) {
+      return err({
+        message: 'Error when retrieving the first unit of the course',
+        statusCode: 500,
+        cause: e,
+      });
+    }
+  }
 }
