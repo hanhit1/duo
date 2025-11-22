@@ -9,6 +9,7 @@ import { err, ok, Result } from 'neverthrow';
 import * as bcrypt from 'bcrypt';
 import { UpdateAccountDto } from '@app/constracts/users/dto/update-account.dto';
 import { RoleDetailService } from './role-detail/role-detail.service';
+import { normalizeDate } from '@app/constracts/helpers/normalizeDate';
 
 dotenv.config();
 
@@ -234,26 +235,49 @@ export class UsersService extends CRUDService<User> {
     heartCount: number;
   }): Promise<Result<User, AppError>> {
     try {
-      const user = await this.userModel.findOneAndUpdate(
-        { _id: payload.userId },
-        {
-          $inc: {
-            experiencePoint: payload.experiencePoint, // plus
-          },
-          $set: {
-            heartCount: payload.heartCount, // set
-            lastActiveAt: new Date(),
-          },
-        },
-        { new: true },
-      );
+      const user = await this.userModel.findById(payload.userId);
       if (!user) {
         return err({
           message: ErrorMessage.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
-      return ok(user as User);
+
+      // update streak count
+      const today = new Date();
+      const lastActiveDate = user.lastActiveAt ? new Date(user.lastActiveAt) : null;
+      const todayStr = normalizeDate(today);
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      const yesterdayStr = normalizeDate(yesterday);
+
+      let newStreak = 1;
+      if (lastActiveDate) {
+        const lastActiveStr = normalizeDate(lastActiveDate);
+        if (lastActiveStr === todayStr) {
+          // already active today, do not change streak
+          newStreak = user.streakCount || 1;
+        } else if (lastActiveStr === yesterdayStr) {
+          // active yesterday, increment streak
+          newStreak = (user.streakCount || 0) + 1;
+        } else {
+          // active before yesterday, reset streak
+          newStreak = 1; // reset streak
+        }
+      }
+
+      user.streakCount = newStreak;
+      user.heartCount = payload.heartCount;
+      user.experiencePoint += payload.experiencePoint;
+      user.lastActiveAt = today;
+
+      await user.save();
+
+      const safeUser = user.toObject() as Partial<User>; // Partial cho phép optional
+      delete safeUser.password;
+      delete safeUser.email;
+
+      return ok(safeUser as User);
     } catch (e) {
       return err({
         message: ErrorMessage.ERROR_WHEN_UPDATING_USER,
