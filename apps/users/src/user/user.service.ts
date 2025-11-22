@@ -29,6 +29,19 @@ export class UserService extends CRUDService<User> {
           statusCode: 404,
         });
       }
+
+      // check if is role user to reset heartCount daily
+      const role = user.roleId as any;
+      const nameRole = role?.name?.toUpperCase?.() || '';
+      const lastActiveDate = new Date(user.lastActiveAt || '');
+      const currentDate = new Date();
+      const timeDiff = currentDate.getTime() - lastActiveDate.getTime();
+      const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+
+      if (nameRole.toUpperCase() === 'USER' && dayDiff >= 1 && user.heartCount < 5) {
+        await this.userModel.findByIdAndUpdate(userId, { heartCount: 5 });
+        user.heartCount = 5;
+      }
       return ok(user);
     } catch (e) {
       return err({
