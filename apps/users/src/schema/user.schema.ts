@@ -28,6 +28,12 @@ export class User extends Document<ObjectId> {
   @Prop({ type: Date, required: false })
   lastActiveAt: Date;
 
+  @Prop({ type: Number, required: false })
+  experiencePoint: number;
+
+  @Prop({ type: Number, required: false })
+  heartCount: number;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: RoleDetail.name, required: true })
   roleId: ObjectId | string;
 }

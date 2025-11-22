@@ -133,4 +133,23 @@ export class UsersController {
       },
     );
   }
+
+  @Patch()
+  @MessagePattern({ cmd: 'user.updateExpAndHeart' })
+  async updateExpAndHeart(
+    @Payload() payload: { userId: string; experiencePoint: number; heartCount: number },
+  ) {
+    const resultOrErr = await this.usersService.updateExpAndHeart(payload);
+    return resultOrErr.match(
+      (v) => {
+        return ok({
+          data: v,
+        });
+      },
+      (e: AppError) => {
+        console.log(e);
+        return err({ message: e.message });
+      },
+    );
+  }
 }

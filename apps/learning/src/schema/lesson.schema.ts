@@ -17,6 +17,9 @@ export class Lesson extends Document<ObjectId> {
   objectives?: string;
 
   @Prop({ required: true })
+  experiencePoint: number;
+
+  @Prop({ required: true })
   displayOrder: number;
 
   @Prop(String)

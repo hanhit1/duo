@@ -107,6 +107,8 @@ export class UsersService extends CRUDService<User> {
 
       delete createUserDto.streakCount;
       delete createUserDto.lastActiveAt;
+      delete createUserDto.experiencePoint;
+      delete createUserDto.heartCount;
 
       const hashedPassword = createUserDto.password
         ? await bcrypt.hash(createUserDto.password, 10)
@@ -221,6 +223,42 @@ export class UsersService extends CRUDService<User> {
       return err({
         message: ErrorMessage.ERROR_WHEN_REMOVING_MODEL,
         statusCode: 500,
+        cause: e,
+      });
+    }
+  }
+
+  async updateExpAndHeart(payload: {
+    userId: string;
+    experiencePoint: number;
+    heartCount: number;
+  }): Promise<Result<User, AppError>> {
+    try {
+      const user = await this.userModel.findOneAndUpdate(
+        { _id: payload.userId },
+        {
+          $inc: {
+            experiencePoint: payload.experiencePoint, // plus
+          },
+          $set: {
+            heartCount: payload.heartCount, // set
+            lastActiveAt: new Date(),
+          },
+        },
+        { new: true },
+      );
+      if (!user) {
+        return err({
+          message: ErrorMessage.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      return ok(user as User);
+    } catch (e) {
+      return err({
+        message: ErrorMessage.ERROR_WHEN_UPDATING_USER,
+        statusCode: 500,
+        context: payload,
         cause: e,
       });
     }
