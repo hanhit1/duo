@@ -237,6 +237,8 @@ export class AuthService {
         roleId: roleIdUser.isOk() && roleIdUser.value ? roleIdUser.value._id.toString() : '',
         lastActiveAt: new Date(),
         streakCount: 0,
+        experiencePoint: 0,
+        heartCount: 5,
       });
 
       if (createUserResult.isErr()) {

@@ -36,6 +36,16 @@ export class CreateUserDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsNumber()
+  experiencePoint?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  heartCount?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsDate()
   lastActiveAt?: Date;
 }

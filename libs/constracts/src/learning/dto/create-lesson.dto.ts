@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, MinLength, IsMongoId } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, MinLength, IsMongoId, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateLessonDto {
@@ -6,6 +6,10 @@ export class CreateLessonDto {
   @IsNotEmpty()
   @IsMongoId()
   unitId: string;
+
+  @ApiProperty()
+  @IsNumber()
+  experiencePoint: number;
 
   @ApiProperty()
   @IsNotEmpty()

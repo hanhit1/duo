@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateProgressDto {
@@ -11,4 +11,12 @@ export class UpdateProgressDto {
   @IsNotEmpty()
   @IsString()
   unitId: string;
+
+  @ApiProperty()
+  @IsNumber()
+  experiencePoint: number;
+
+  @ApiProperty()
+  @IsNumber()
+  heartCount: number;
 }
