@@ -283,4 +283,19 @@ export class ProgressController {
       },
     );
   }
+
+  @Get()
+  @MessagePattern({ cmd: 'progress.checkByUser' })
+  async checkProgressByUser(@Payload() payload: { userId: string }) {
+    const resultOrErr = await this.progressService.findOne({ user: payload.userId });
+    return resultOrErr.match(
+      (v: Progress) => {
+        return ok(v);
+      },
+      (e: AppError) => {
+        console.log(e);
+        return err({ message: e.message });
+      },
+    );
+  }
 }

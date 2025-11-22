@@ -110,4 +110,25 @@ export class ProgressController {
       error: () => res.status(500).send({ message: 'Internal server error' }),
     });
   }
+
+  @ApiOperation({
+    summary: 'Check if user has course progress',
+    description: 'This API will check if user has course progress',
+  })
+  @Permissions('user')
+  @Get()
+  checkCourseByProgress(@Req() req: CustomRequest, @Res() res: FastifyReply) {
+    const userId = req.user.userId;
+
+    this.client.send({ cmd: 'progress.checkByUser' }, { userId }).subscribe({
+      next: (result: any) => {
+        if (result.value) {
+          res.status(200).send(result);
+        } else {
+          res.status(400).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
+    });
+  }
 }
