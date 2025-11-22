@@ -272,7 +272,12 @@ export class UsersService extends CRUDService<User> {
       user.lastActiveAt = today;
 
       await user.save();
-      return ok(user as User);
+
+      const safeUser = user.toObject() as Partial<User>; // Partial cho phép optional
+      delete safeUser.password;
+      delete safeUser.email;
+
+      return ok(safeUser as User);
     } catch (e) {
       return err({
         message: ErrorMessage.ERROR_WHEN_UPDATING_USER,
