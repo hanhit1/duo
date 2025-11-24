@@ -16,6 +16,7 @@ import { UsersController } from './controller/users.controller';
 import { RoleDetailController } from './controller/role-detail.controller';
 import { AccountController } from './controller/account.controller';
 import { ProgressController } from './controller/progress.controller';
+import { MistakeController } from './controller/mistake.controller';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { ProgressController } from './controller/progress.controller';
     RoleDetailController,
     AccountController,
     ProgressController,
+    MistakeController,
   ],
   providers: [
     ApiGatewayService,
