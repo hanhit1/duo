@@ -267,8 +267,13 @@ export class UsersService extends CRUDService<User> {
       }
 
       user.streakCount = newStreak;
-      user.heartCount = payload.heartCount;
-      user.experiencePoint += payload.experiencePoint;
+
+      if (payload.heartCount >= 0) {
+        user.heartCount = payload.heartCount;
+      }
+      if (payload.experiencePoint) {
+        user.experiencePoint += payload.experiencePoint;
+      }
       user.lastActiveAt = today;
 
       await user.save();

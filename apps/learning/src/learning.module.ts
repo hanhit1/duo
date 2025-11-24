@@ -10,6 +10,7 @@ import { LessonModule } from './lesson/lesson.module';
 import { TheoryModule } from './theory/theory.module';
 import { QuestionModule } from './question/question.module';
 import { ProgressModule } from './progress/progress.module';
+import { MistakeModule } from './mistake/mistake.module';
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ dotenv.config();
     TheoryModule,
     QuestionModule,
     ProgressModule,
+    MistakeModule,
   ],
   controllers: [LearningController],
   providers: [LearningService],
