@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { UpdateAccountDto } from '@app/constracts/users/dto/update-account.dto';
 import { RoleDetailService } from './role-detail/role-detail.service';
 import { normalizeDate } from '@app/constracts/helpers/normalizeDate';
+import { rankingPipeline } from './users.pipeline';
 
 dotenv.config();
 
@@ -288,6 +289,26 @@ export class UsersService extends CRUDService<User> {
         message: ErrorMessage.ERROR_WHEN_UPDATING_USER,
         statusCode: 500,
         context: payload,
+        cause: e,
+      });
+    }
+  }
+
+  async getRankingUsers(): Promise<Result<User[], AppError>> {
+    try {
+      const userRole = await this.roleDetailService.findOne({ name: 'User' });
+      let filter = {};
+      if (userRole.isOk() && userRole.value) {
+        filter = { roleId: userRole.value._id as any };
+      }
+      const pipeline = rankingPipeline(filter);
+      const listOfUsers = await this.userModel.aggregate(pipeline).exec();
+
+      return ok(listOfUsers as User[]);
+    } catch (e) {
+      return err({
+        message: ErrorMessage.ERROR_WHEN_GET_RANKING,
+        statusCode: 500,
         cause: e,
       });
     }

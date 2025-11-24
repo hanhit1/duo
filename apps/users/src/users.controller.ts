@@ -152,4 +152,21 @@ export class UsersController {
       },
     );
   }
+
+  @Get()
+  @MessagePattern({ cmd: 'ranking.viewByExp' })
+  async getRankingByExp() {
+    const resultOrErr = await this.usersService.getRankingUsers();
+    return resultOrErr.match(
+      (v) => {
+        return ok({
+          data: v,
+        });
+      },
+      (e: AppError) => {
+        console.log(e);
+        return err({ message: e.message });
+      },
+    );
+  }
 }

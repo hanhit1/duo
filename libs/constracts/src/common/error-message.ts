@@ -25,4 +25,5 @@ export const ErrorMessage = {
   CANNOT_UPDATE_ADMIN_ACCOUNT: 'Cannot update Admin account',
   CANNOT_DELETE_ADMIN_ROLE: 'Cannot delete Admin role',
   USER_NOT_FOUND_OR_TRYING_TO_DELETE_ADMIN: 'User not found or trying to delete Admin account',
+  ERROR_WHEN_GET_RANKING: 'Error when getting ranking',
 };
