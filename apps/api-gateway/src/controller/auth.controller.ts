@@ -7,11 +7,11 @@ import {
   ResendCodeDto,
   VerifyEmailDto,
 } from '@app/constracts';
-import { Body, Controller, Get, Inject, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Query, Req, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { clearCookieForFastifyResp, setCookieForFastifyResp } from '../guard/auth/cookie';
-import { ApiCookieAuth } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
 
 @ApiCookieAuth()
 @Controller('auth')
@@ -26,6 +26,28 @@ export class AuthController {
         if (result.value) {
           setCookieForFastifyResp(res, result.value.data);
           res.status(200).send('Login successful');
+        } else {
+          res.status(401).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
+    });
+  }
+
+  @ApiOperation({
+    summary: 'Login with Google OAuth2 via web client',
+    description:
+      'This endpoint handles the callback from Google OAuth2 login. It expects query parameters returned by Google after user authentication.',
+  })
+  @Public()
+  @Get('login-google')
+  loginWithGoogleByWeb(@Query() query, @Res() res: FastifyReply) {
+    this.client.send({ cmd: 'auth.login-google-web' }, query).subscribe({
+      next: (result: any) => {
+        const { state } = query;
+        if (result.value) {
+          setCookieForFastifyResp(res, result.value.data);
+          res.status(302).header('Location', state).send();
         } else {
           res.status(401).send({ message: result.error.message });
         }
