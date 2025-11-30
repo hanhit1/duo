@@ -1,4 +1,11 @@
-import { AppError, CreateUserDto, CRUDService, ErrorMessage, UpdateUserDto } from '@app/constracts';
+import {
+  AccountRole,
+  AppError,
+  CreateUserDto,
+  CRUDService,
+  ErrorMessage,
+  UpdateUserDto,
+} from '@app/constracts';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
@@ -7,6 +14,8 @@ import { Model } from 'mongoose';
 import { err, ok, Result } from 'neverthrow';
 import * as bcrypt from 'bcrypt';
 import { User } from '../schema/user.schema';
+import { Cron } from '@nestjs/schedule';
+import { startOfDay } from 'date-fns';
 
 dotenv.config();
 
@@ -124,6 +133,28 @@ export class UserService extends CRUDService<User> {
         context: { email, newPassword },
         cause: e,
       });
+    }
+  }
+
+  @Cron('0 0 0 * * *')
+  async handleDailyStreakJob(): Promise<void> {
+    const today = new Date();
+
+    const yesterday = startOfDay(new Date(today.getTime() - 24 * 60 * 60 * 1000));
+
+    const users = await this.userModel.find({ role: AccountRole.User }).lean();
+
+    for (const u of users) {
+      if (u.lastActiveAt < yesterday) {
+        await this.userModel.updateOne(
+          { _id: u._id },
+          {
+            $set: {
+              streakCount: 0,
+            },
+          },
+        );
+      }
     }
   }
 }

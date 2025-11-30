@@ -16,7 +16,7 @@ async function bootstrap() {
   );
 
   await app.register(fastifyCors as any, {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5000'], // Sửa thành mảng
+    origin: ['http://localhost:5173', 'http://localhost:5174'], // Sửa thành mảng
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Thêm tất cả methods
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Thêm headers được phép
