@@ -11,7 +11,7 @@ import { Body, Controller, Get, Inject, Post, Query, Req, Res } from '@nestjs/co
 import { ClientProxy } from '@nestjs/microservices';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { clearCookieForFastifyResp, setCookieForFastifyResp } from '../guard/auth/cookie';
-import { ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
 
 @ApiCookieAuth()
 @Controller('auth')
@@ -48,6 +48,28 @@ export class AuthController {
         if (result.value) {
           setCookieForFastifyResp(res, result.value.data);
           res.status(302).header('Location', state).send();
+        } else {
+          res.status(401).send({ message: result.error.message });
+        }
+      },
+      error: () => res.status(500).send({ message: 'Internal server error' }),
+    });
+  }
+
+  @ApiOperation({
+    summary: 'Login with Google OAuth2 via mobile client',
+    description:
+      'This endpoint handles Google OAuth2 login for mobile clients. It expects the necessary data in the request body.',
+  })
+  @ApiBody({ schema: { example: { code: 'serverAuthCode_from_google' } } })
+  @Public()
+  @Post('login-google')
+  loginWithGoogleByMoBile(@Body() body, @Res() res: FastifyReply) {
+    this.client.send({ cmd: 'auth.login-google-mobile' }, body).subscribe({
+      next: (result: any) => {
+        if (result.value) {
+          setCookieForFastifyResp(res, result.value.data);
+          res.status(200).send('Login successful');
         } else {
           res.status(401).send({ message: result.error.message });
         }

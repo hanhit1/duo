@@ -80,6 +80,25 @@ export class AuthController {
     );
   }
 
+  @Public()
+  @MessagePattern({ cmd: 'auth.login-google-mobile' })
+  async loginWithGoogleMobile(@Payload() body: any) {
+    const { code } = body;
+    const genTokenOrError = await this.authService.loginWithGoogleWeb(code);
+
+    return genTokenOrError.match(
+      (v: GeneratedToken) => {
+        return ok({
+          data: v,
+        });
+      },
+      (error: AppError) => {
+        console.error({ error });
+        return err({ message: ErrorMessage.UNAUTHORIZED });
+      },
+    );
+  }
+
   @MessagePattern({ cmd: 'auth.refresh' })
   async refresh(@Payload() refreshToken: string) {
     if (!refreshToken) {

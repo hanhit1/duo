@@ -202,15 +202,15 @@ export class AuthService {
   async loginWithGoogleWeb(code: string): Promise<Result<GeneratedToken, AppError>> {
     try {
       const client = new OAuth2Client(
-        process.env.GOOGLE_CLIENT_ID_WEB,
-        process.env.GOOGLE_CLIENT_SECRET_WEB,
-        process.env.REDIRECT_URI_WEB,
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        process.env.GOOGLE_OAUTH_REDIRECT_URI,
       );
 
       const { tokens } = await client.getToken(code);
       const ticket = await client.verifyIdToken({
         idToken: tokens.id_token || '',
-        audience: process.env.GOOGLE_CLIENT_ID_WEB,
+        audience: process.env.GOOGLE_CLIENT_ID,
       });
 
       const payload = ticket.getPayload();
