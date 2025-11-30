@@ -26,4 +26,9 @@ export const ErrorMessage = {
   CANNOT_DELETE_ADMIN_ROLE: 'Cannot delete Admin role',
   USER_NOT_FOUND_OR_TRYING_TO_DELETE_ADMIN: 'User not found or trying to delete Admin account',
   ERROR_WHEN_GET_RANKING: 'Error when getting ranking',
+  ERROR_WHEN_PROCESSING_GOOGLE_OAUTH: 'Error when processing Google OAuth',
+  ERROR_WHEN_FETCHING_INFO_USER_FROM_GOOGLE: 'Error when fetching info user from Google',
+  ERROR_WHEN_CREATEING_USER_FROM_GOOGLE: 'Error when creating user from Google',
+  ERROR_WHEN_HANDLING_ACCOUNT_USER_BY_LOGIN_WITH_GOOGLE:
+    'Error when handling account user by login with Google',
 };

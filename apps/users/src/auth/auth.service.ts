@@ -12,8 +12,8 @@ import {
   ForgotPasswordDto,
   forgotPasswordKey,
   GeneratedToken,
+  GoogleUserInfo,
   IEmailVerify,
-  jwtConstants,
   JwtPayload,
   ResendCodeDto,
   VerifyEmailDto,
@@ -24,6 +24,7 @@ import { EmailService } from 'apps/users/src/email/email.service';
 import { User } from 'apps/users/src/schema/user.schema';
 import { UserService } from '../user/user.service';
 import { RoleDetailService } from '../role-detail/role-detail.service';
+import { OAuth2Client } from 'google-auth-library';
 dotenv.config();
 
 @Injectable()
@@ -51,7 +52,7 @@ export class AuthService {
   async refreshTokenFromCookie(refreshToken: string): Promise<Result<GeneratedToken, AppError>> {
     try {
       const jwtPayload = this.jwtService.verify<JwtPayload>(refreshToken, {
-        secret: jwtConstants.refresh_secret,
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
       });
 
       const userOrError = await this.usersService.findOne({ _id: jwtPayload.userId });
@@ -86,15 +87,150 @@ export class AuthService {
       if (permissionsOfUser.isOk() && permissionsOfUser.value) {
         payload.permissions = permissionsOfUser.value.permissions;
       }
-      const access_token = this.jwtService.sign(payload, { secret: jwtConstants.secret });
+      const access_token = this.jwtService.sign(payload, {
+        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
+      });
       const refresh_token = this.jwtService.sign(payload, {
-        secret: jwtConstants.refresh_secret,
-        // expiresIn: '100d',
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+        expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN,
       });
       console.log('access_token: ', access_token);
       return ok({
         access_token: access_token,
         refresh_token: refresh_token,
+      } as GeneratedToken);
+    } catch (e) {
+      // console.error(e);
+      return err({
+        message: ErrorMessage.ERROR_WHEN_GENERATING_TOKEN,
+        cause: e,
+      });
+    }
+  }
+
+  async handleAccountUserByLoginWithGoogle(
+    userInfo: GoogleUserInfo,
+  ): Promise<Result<GeneratedToken, AppError>> {
+    // get role and permissions of User for sign token
+    const roleAndPermissionsOfUserRole = await this.roleDetailService.findOne({ name: 'User' });
+    if (roleAndPermissionsOfUserRole.isErr()) {
+      return err({
+        message: ErrorMessage.ERROR_WHEN_RETRIEVING_MODEL,
+        cause: roleAndPermissionsOfUserRole.error,
+      });
+    }
+
+    // check if user already exists
+    const userOrError = await this.usersService.findOne({ email: userInfo.email });
+    if (userOrError.isErr()) {
+      return err({
+        message: ErrorMessage.ERROR_WHEN_FETCHING_USER,
+        cause: userOrError.error,
+      });
+    }
+
+    // if user is not exists, create new user
+    if (userOrError.isOk() && !userOrError.value) {
+      // Create user account
+
+      const createUserResult = await this.usersService.createUser({
+        email: userInfo.email,
+        password: crypto.randomUUID(), // random password
+        fullName: userInfo.name,
+        avatarImage: userInfo.picture,
+        roleId: roleAndPermissionsOfUserRole.value._id.toString() || '',
+        lastActiveAt: new Date(),
+        streakCount: 0,
+        experiencePoint: 0,
+        heartCount: 5,
+      });
+
+      if (createUserResult.isErr()) {
+        return err({
+          message: ErrorMessage.ERROR_WHEN_CREATEING_USER_FROM_GOOGLE,
+          cause: createUserResult.error,
+        });
+      }
+
+      // sign token for new user
+      const payloadForNewUser: JwtPayload = {
+        userId: createUserResult.value._id.toString(),
+        roleId: createUserResult.value.roleId.toString(),
+        permissions: roleAndPermissionsOfUserRole.value.permissions || [],
+      };
+
+      const access_token = this.jwtService.sign(payloadForNewUser, {
+        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
+      });
+      const refresh_token = this.jwtService.sign(payloadForNewUser, {
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+        expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN,
+      });
+
+      console.log('access_token: ', access_token);
+      return ok({
+        access_token: access_token,
+        refresh_token: refresh_token,
+      } as GeneratedToken);
+    }
+
+    // if user is exists, generate token
+    const payloadForExistingUser: JwtPayload = {
+      userId: userOrError.value._id.toString(),
+      roleId: userOrError.value.roleId.toString(),
+      permissions: roleAndPermissionsOfUserRole.value.permissions || [],
+    };
+
+    const access_token_for_existing_user = this.jwtService.sign(payloadForExistingUser, {
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
+    });
+    const refresh_token_for_existing_user = this.jwtService.sign(payloadForExistingUser, {
+      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN,
+    });
+
+    console.log('access_token: ', access_token_for_existing_user);
+    return ok({
+      access_token: access_token_for_existing_user,
+      refresh_token: refresh_token_for_existing_user,
+    } as GeneratedToken);
+  }
+
+  async loginWithGoogleWeb(code: string): Promise<Result<GeneratedToken, AppError>> {
+    try {
+      const client = new OAuth2Client(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        process.env.GOOGLE_OAUTH_REDIRECT_URI,
+      );
+
+      const { tokens } = await client.getToken(code);
+      const ticket = await client.verifyIdToken({
+        idToken: tokens.id_token || '',
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+
+      const resultInfo: GoogleUserInfo = {
+        email: payload?.email || '',
+        name: payload?.name || '',
+        picture: payload?.picture || '',
+      };
+      const handleAccountUser = await this.handleAccountUserByLoginWithGoogle(resultInfo);
+      if (handleAccountUser.isErr()) {
+        return err({
+          message: ErrorMessage.ERROR_WHEN_HANDLING_ACCOUNT_USER_BY_LOGIN_WITH_GOOGLE,
+          cause: handleAccountUser.error,
+        });
+      }
+
+      return ok({
+        access_token: handleAccountUser.value.access_token,
+        refresh_token: handleAccountUser.value.refresh_token,
       } as GeneratedToken);
     } catch (e) {
       // console.error(e);

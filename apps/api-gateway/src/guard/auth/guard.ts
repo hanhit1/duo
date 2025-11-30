@@ -5,6 +5,8 @@ import { CustomRequest, IS_PUBLIC_KEY, JwtPayload } from '@app/constracts';
 import { jwtConstants } from '@app/constracts';
 import { ErrorMessage } from '@app/constracts';
 import { FastifyRequest } from 'fastify';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -30,7 +32,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = this.jwtService.verify<JwtPayload>(tokens.access_token, {
-        secret: jwtConstants.secret,
+        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       });
 
       // const isAdminFlag = this.reflector.getAllAndOverride<boolean>(IS_ADMIN_KEY, [

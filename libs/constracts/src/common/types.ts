@@ -66,6 +66,11 @@ export enum AccountRole {
   Admin = 'admin',
 }
 
+export type GoogleUserInfo = {
+  email: string;
+  name: string;
+  picture: string;
+};
 export class MatchingQuestionItemDto {
   @ApiProperty({ example: 'Text value' })
   @IsString()
