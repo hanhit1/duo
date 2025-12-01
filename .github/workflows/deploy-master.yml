@@ -1,0 +1,56 @@
+name: Deploy NestJS Backend (Yarn + PM2)
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 22.11.0
+
+    # - name: Install Yarn
+    #   run: npm install -g yarn
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build NestJS app
+      run: npm run build
+
+    - name: Deploy to Server via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          source /root/.nvm/nvm.sh
+          nvm use 22
+          cd /srv/duo
+          git fetch origin
+          git reset --hard origin/master
+          git pull origin master
+          npm install
+          npm run build
+
+          npm run start:users
+          pm2 restart users-service || pm2 start dist/apps/users/main.js --name users-service
+
+          npm run start:learning
+          pm2 restart learning-service || pm2 start dist/apps/learning/main.js --name learning-service
+
+          npm run start:api-gateway
+          pm2 restart api-gateway || pm2 start dist/apps/api-gateway/main.js --name api-gateway
+          
+          pm2 save
