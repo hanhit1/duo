@@ -1,20 +1,21 @@
 import { UpdateUserDto } from '@app/constracts';
-import { Body, Controller, Inject, Param, Put, Res } from '@nestjs/common';
+import { Body, Controller, Inject, Patch, Req, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiCookieAuth } from '@nestjs/swagger';
-import { FastifyReply } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 @ApiCookieAuth()
-@Controller('users/:userId')
+@Controller('users')
 export class UsersController {
   constructor(@Inject('USERS_SERVICE') private readonly client: ClientProxy) {}
 
-  @Put('profile')
+  @Patch('profile')
   updateProfile(
-    @Param('userId') userId: string,
+    @Req() req: FastifyRequest,
     @Body() updateData: UpdateUserDto,
     @Res() res: FastifyReply,
   ) {
+    const { userId } = (req as any).user;
     this.client.send({ cmd: 'auth.update-profile' }, { userId, updateData }).subscribe({
       next: (result: any) => {
         if (result.value) {
