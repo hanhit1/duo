@@ -4,6 +4,7 @@ import {
   CreateUserDto,
   CRUDService,
   ErrorMessage,
+  PublicUser,
   UpdateUserDto,
 } from '@app/constracts';
 import { Injectable } from '@nestjs/common';
@@ -83,7 +84,10 @@ export class UserService extends CRUDService<User> {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<Result<User, AppError>> {
+  async updateUser(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<Result<PublicUser, AppError>> {
     try {
       if (updateUserDto.password) {
         // Hash the new password before updating
@@ -100,7 +104,9 @@ export class UserService extends CRUDService<User> {
         });
       }
 
-      return ok(user as User);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, email, ...safeUser } = user.toObject();
+      return ok(safeUser);
     } catch (e) {
       return err({
         message: ErrorMessage.ERROR_WHEN_UPDATING_USER,

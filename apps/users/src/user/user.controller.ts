@@ -12,12 +12,12 @@ export class UserController {
   async updateProfile(@Payload() payload: { userId: string; updateData: UpdateUserDto }) {
     const { userId, updateData } = payload;
 
-    const userOrError = await this.userService.update(userId, updateData);
+    const userOrError = await this.userService.updateUser(userId, updateData);
 
     return userOrError.match(
       (v) => {
         return ok({
-          data: { ...v, password: undefined, role: undefined },
+          data: v,
         });
       },
       (e: AppError) => {

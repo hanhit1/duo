@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { FastifyRequest } from 'fastify';
+import { ObjectId } from 'mongoose';
 
 export type AppError = {
   message: string;
@@ -70,6 +71,17 @@ export type GoogleUserInfo = {
   email: string;
   name: string;
   picture: string;
+};
+
+export type PublicUser = {
+  _id?: string | ObjectId;
+  fullName: string;
+  avatarImage?: string;
+  isActive: boolean;
+  streakCount?: number;
+  lastActiveAt: Date;
+  experiencePoint?: number;
+  heartCount?: number;
 };
 export class MatchingQuestionItemDto {
   @ApiProperty({ example: 'Text value' })
