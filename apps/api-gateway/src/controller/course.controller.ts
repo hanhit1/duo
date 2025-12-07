@@ -134,7 +134,7 @@ export class CourseController {
   }
 
   @Get(':id')
-  adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
+  getOneCourse(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.getOne' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {

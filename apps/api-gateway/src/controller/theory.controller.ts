@@ -125,7 +125,7 @@ export class TheoryController {
   }
 
   @Get(':id')
-  adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
+  getOneTheory(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'theory.getOne' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {

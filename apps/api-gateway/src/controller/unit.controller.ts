@@ -78,13 +78,12 @@ export class UnitController {
     });
   }
 
-  @Permissions('unit.view')
   @Get('admin/all-not-paginate')
   @ApiOperation({
     summary: 'Admin view a list of all units without pagination to implement Unit-combobox',
     description: 'This API will return a list of units without pagination to Admin',
   })
-  adminGetAllUnitNotPaginate(@Res() res: FastifyReply) {
+  getAllUnitNotPaginate(@Res() res: FastifyReply) {
     this.client.send({ cmd: 'unit.getAllNotPaginate' }, {}).subscribe({
       next: (result: any) => {
         if (result.value) {
@@ -149,7 +148,7 @@ export class UnitController {
   }
 
   @Get(':id')
-  adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
+  getOneUnit(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'unit.getOne' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {
@@ -178,21 +177,21 @@ export class UnitController {
     });
   }
 
-  @Get('course/:id')
-  adminGetByCourseId(
-    @Param('id') id: string,
-    @Res() res: FastifyReply,
-    @Query() dto: GetCommonDto,
-  ) {
-    this.client.send({ cmd: 'unit.getByCourseId' }, { courseId: id, ...dto }).subscribe({
-      next: (result: any) => {
-        if (result.value) {
-          res.status(200).send(result);
-        } else {
-          res.status(400).send({ message: result.error.message });
-        }
-      },
-      error: () => res.status(500).send({ message: 'Internal server error' }),
-    });
-  }
+  // @Get('course/:id')
+  // adminGetByCourseId(
+  //   @Param('id') id: string,
+  //   @Res() res: FastifyReply,
+  //   @Query() dto: GetCommonDto,
+  // ) {
+  //   this.client.send({ cmd: 'unit.getByCourseId' }, { courseId: id, ...dto }).subscribe({
+  //     next: (result: any) => {
+  //       if (result.value) {
+  //         res.status(200).send(result);
+  //       } else {
+  //         res.status(400).send({ message: result.error.message });
+  //       }
+  //     },
+  //     error: () => res.status(500).send({ message: 'Internal server error' }),
+  //   });
+  // }
 }
