@@ -110,7 +110,7 @@ export class QuestionController {
   }
 
   @Get(':id')
-  adminGetOne(@Param('id') id: string, @Res() res: FastifyReply) {
+  getOneQuestion(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'question.getOne' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {

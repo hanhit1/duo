@@ -33,7 +33,7 @@ export class AccountController {
   @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
   @Permissions('account.view')
   @Get()
-  getAllAccountsAdminWebsite(@Query() query: PaginationReq, @Res() res: FastifyReply) {
+  getAllAdminWebsiteAccounts(@Query() query: PaginationReq, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'account.getAll' }, query).subscribe({
       next: (result: any) => {
         if (result.value) {
@@ -72,7 +72,7 @@ export class AccountController {
   @ApiBody({ type: CreateUserDto })
   @Permissions('account.create')
   @Post()
-  createAccountAdminWebsite(@Body() body: CreateUserDto, @Res() res: FastifyReply) {
+  createAdminWebsiteAccount(@Body() body: CreateUserDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'account.insert' }, body).subscribe({
       next: (result: any) => {
         if (result.value) {
@@ -92,7 +92,7 @@ export class AccountController {
   @Permissions('account.update')
   @Patch(':id')
   @ApiBody({ type: UpdateAccountDto })
-  updateAccountAdminWebsite(
+  updateAdminWebsiteAccount(
     @Param('id') id: string,
     @Body() body: UpdateAccountDto,
     @Res() res: FastifyReply,
@@ -115,7 +115,7 @@ export class AccountController {
   })
   @Permissions('account.delete')
   @Delete(':id')
-  deleteAccountAdminWebsite(@Param('id') id: string, @Res() res: FastifyReply) {
+  deleteAdminWebsiteAccount(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'account.remove' }, id).subscribe({
       next: (result: any) => {
         if (result.value) {
