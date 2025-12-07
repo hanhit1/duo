@@ -1,5 +1,4 @@
 import {
-  AccountRole,
   AppError,
   CreateUserDto,
   CRUDService,
@@ -16,7 +15,6 @@ import { err, ok, Result } from 'neverthrow';
 import * as bcrypt from 'bcrypt';
 import { User } from '../schema/user.schema';
 import { Cron } from '@nestjs/schedule';
-import { startOfDay } from 'date-fns';
 
 dotenv.config();
 
@@ -146,9 +144,9 @@ export class UserService extends CRUDService<User> {
   async handleDailyStreakJob(): Promise<void> {
     const today = new Date();
 
-    const yesterday = startOfDay(new Date(today.getTime() - 24 * 60 * 60 * 1000));
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 
-    const users = await this.userModel.find({ role: AccountRole.User }).lean();
+    const users = await this.userModel.find({ roleId: '691238dc19f785f28a7bf5cc' }).lean();
 
     for (const u of users) {
       if (u.lastActiveAt < yesterday) {

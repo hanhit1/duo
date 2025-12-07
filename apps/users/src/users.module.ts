@@ -10,10 +10,12 @@ import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { UserModule } from './user/user.module';
 import { RoleDetailModule } from './role-detail/role-detail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 dotenv.config();
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     MongooseModule.forRoot(process.env.DB_URI as string, {
       retryAttempts: 1,
       retryDelay: 1000,
