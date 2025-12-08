@@ -44,7 +44,7 @@ export class CourseController {
     };
     this.client.send({ cmd: 'course.getAllByUser' }, payload).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });
@@ -89,7 +89,7 @@ export class CourseController {
   adminGetAllCourse(@Query() dto: AdminGetCourseDto, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });
@@ -108,7 +108,7 @@ export class CourseController {
   adminGetAllCourseNotPaginate(@Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.getAllNotPaginate' }, {}).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });
@@ -137,6 +137,9 @@ export class CourseController {
   getOneCourse(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'course.getOne' }, id).subscribe({
       next: (result: any) => {
+        if (result.value == null) {
+          return res.status(404).send({ message: 'Model not found' });
+        }
         if (result.value) {
           res.status(200).send(result);
         } else {

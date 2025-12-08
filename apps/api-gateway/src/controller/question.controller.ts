@@ -36,7 +36,7 @@ export class QuestionController {
   userGetAllQuestions(@Param('lessonId') lessonId: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'question.getAllByUser' }, { lessonId }).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });
@@ -84,7 +84,7 @@ export class QuestionController {
   ) {
     this.client.send({ cmd: 'question.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });
@@ -113,6 +113,9 @@ export class QuestionController {
   getOneQuestion(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'question.getOne' }, id).subscribe({
       next: (result: any) => {
+        if (result.value == null) {
+          return res.status(404).send({ message: 'Model not found' });
+        }
         if (result.value) {
           res.status(200).send(result);
         } else {
