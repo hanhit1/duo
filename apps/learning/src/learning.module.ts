@@ -16,7 +16,7 @@ dotenv.config();
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.DB_URI as string, {
+    MongooseModule.forRoot(process.env.LEARNING_DB_URI as string, {
       retryAttempts: 1,
       retryDelay: 1000,
       connectionErrorFactory: (error: MongooseError) => {
