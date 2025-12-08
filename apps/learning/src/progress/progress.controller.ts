@@ -129,8 +129,10 @@ export class ProgressController {
 
   @Patch()
   @MessagePattern({ cmd: 'progress.userUpdate' })
-  async userUpdate(@Payload() payload: { userId: string; lessonId: string; unitId: string }) {
-    const { userId, lessonId, unitId } = payload;
+  async userUpdate(
+    @Payload() payload: { userId: string; lessonId: string; unitId: string; courseId: string },
+  ) {
+    const { userId, lessonId, unitId, courseId } = payload;
 
     const progressOrErr = await this.progressService.findOne({ user: userId });
 
@@ -169,13 +171,75 @@ export class ProgressController {
         return err({ message: 'Progress lesson not found.' });
       }
 
-      if (currentLesson.displayOrder < progressLesson.displayOrder) {
+      const progressUnitOrErr = await this.unitService.findOne({
+        _id: progress.unit.toString(),
+      });
+
+      if (progressUnitOrErr.isErr()) {
+        return err({ message: progressUnitOrErr.error.message });
+      }
+
+      const progressUnit = progressUnitOrErr.value;
+
+      if (!progressUnit) {
+        return err({ message: 'Progress unit not found.' });
+      }
+
+      const currentUnitOrErr = await this.unitService.findOne({ _id: unitId });
+
+      if (currentUnitOrErr.isErr()) {
+        return err({ message: currentUnitOrErr.error.message });
+      }
+
+      const currentUnit = currentUnitOrErr.value;
+
+      if (!currentUnit) {
+        return err({ message: 'Current unit not found.' });
+      }
+
+      const progressCourseOrErr = await this.courseService.findOne({
+        _id: progress.course.toString(),
+      });
+
+      if (progressCourseOrErr.isErr()) {
+        return err({ message: progressCourseOrErr.error.message });
+      }
+
+      const progressCourse = progressCourseOrErr.value;
+
+      if (!progressCourse) {
+        return err({ message: 'Progress course not found.' });
+      }
+
+      const currentCourseOrErr = await this.courseService.findOne({ _id: courseId });
+
+      if (currentCourseOrErr.isErr()) {
+        return err({ message: currentCourseOrErr.error.message });
+      }
+
+      const currentCourse = currentCourseOrErr.value;
+
+      if (!currentCourse) {
+        return err({ message: 'Current course not found.' });
+      }
+
+      const isGoingBackward =
+        currentCourse.displayOrder < progressCourse.displayOrder ||
+        (currentCourse.displayOrder === progressCourse.displayOrder &&
+          currentUnit.displayOrder < progressUnit.displayOrder) ||
+        (currentCourse.displayOrder === progressCourse.displayOrder &&
+          currentUnit.displayOrder === progressUnit.displayOrder &&
+          currentLesson.displayOrder < progressLesson.displayOrder);
+
+      if (isGoingBackward) {
         return ok(toApiOkResp({ result: progress }));
       }
 
       const newLessonOrErr = await this.lessonService.findOneNextLesson(
         progressLesson.displayOrder,
+        progressUnit.displayOrder,
         unitId,
+        courseId,
       );
 
       if (newLessonOrErr.isErr()) {
