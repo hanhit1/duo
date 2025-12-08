@@ -101,7 +101,13 @@ export class ProgressController {
               ? []
               : (unit.lessons ?? []).map((lesson) => {
                   const isLocked =
-                    progress && lesson.displayOrder > lessonCurrent.value.displayOrder;
+                    progress &&
+                    lesson.displayOrder > lessonCurrent.value.displayOrder &&
+                    unit._id.toString() === unitCurrent.value._id.toString()
+                      ? true
+                      : progress && unit.displayOrder > unitCurrent.value.displayOrder
+                        ? true
+                        : false;
                   return {
                     ...lesson,
                     isLocked,
