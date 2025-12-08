@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 async function bootstrap() {
   console.log('Starting Learning Microservice...');
-  console.log(process.env.DB_URI);
+  console.log(process.env.LEARNING_DB_URI);
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(LearningModule, {
     transport: Transport.TCP,
     options: {
