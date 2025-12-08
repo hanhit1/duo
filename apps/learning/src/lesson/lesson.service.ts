@@ -100,7 +100,12 @@ export class LessonService extends CRUDService<Lesson> {
     }
   }
 
-  async findOneNextLesson(displayOrder: number, unitId: string): Promise<Result<Lesson, AppError>> {
+  async findOneNextLesson(
+    displayOrder: number,
+    unitDisplayOrder: number,
+    unitId: string,
+    courseId: string,
+  ): Promise<Result<Lesson, AppError>> {
     try {
       const lesson = await this.lessonModel
         .findOne({ displayOrder: { $gt: displayOrder }, unitId: unitId })
@@ -108,7 +113,7 @@ export class LessonService extends CRUDService<Lesson> {
         .exec();
 
       if (!lesson) {
-        const unitOrErr = await this.unitService.findOneNextUnit(displayOrder, unitId);
+        const unitOrErr = await this.unitService.findOneNextUnit(unitDisplayOrder, courseId);
         if (unitOrErr.isErr()) {
           return err({ message: unitOrErr.error.message });
         }

@@ -56,12 +56,12 @@ export class ProgressController {
     @Res() res: FastifyReply,
   ) {
     const userId = req.user.userId;
-    const { lessonId, unitId, experiencePoint, heartCount } = body;
+    const { lessonId, unitId, courseId, experiencePoint, heartCount } = body;
 
     //  Learning Service
     const updateLearning = this.client.send(
       { cmd: 'progress.userUpdate' },
-      { userId, lessonId, unitId },
+      { userId, lessonId, unitId, courseId },
     );
 
     //User Service

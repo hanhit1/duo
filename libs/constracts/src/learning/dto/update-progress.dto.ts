@@ -13,6 +13,11 @@ export class UpdateProgressDto {
   unitId: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  courseId: string;
+
+  @ApiProperty()
   @IsNumber()
   experiencePoint: number;
 
