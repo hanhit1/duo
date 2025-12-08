@@ -36,7 +36,7 @@ export class RoleDetailController {
   getAllRoles(@Res() res: FastifyReply) {
     this.client.send({ cmd: 'role-detail.getAll' }, {}).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });
@@ -55,7 +55,7 @@ export class RoleDetailController {
   getAllOptionsRoles(@Res() res: FastifyReply) {
     this.client.send({ cmd: 'role-detail.options' }, {}).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });

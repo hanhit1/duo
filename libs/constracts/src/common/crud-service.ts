@@ -37,13 +37,6 @@ export class CRUDService<T> {
       populates.forEach((e) => (queryPipeline = queryPipeline.populate(e)));
 
       const data = await queryPipeline.lean();
-      if (!data) {
-        return errAsync({
-          message: ErrorMessage.ERROR_WHEN_RETRIEVING_MODEL,
-          statusCode: 500,
-          cause: 'Record not found',
-        });
-      }
       return okAsync(data as T);
     } catch (e) {
       return errAsync({

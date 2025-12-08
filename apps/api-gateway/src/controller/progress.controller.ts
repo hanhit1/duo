@@ -122,7 +122,7 @@ export class ProgressController {
 
     this.client.send({ cmd: 'progress.checkByUser' }, { userId }).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });

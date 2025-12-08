@@ -47,7 +47,7 @@ export class TheoryController {
     };
     this.client.send({ cmd: 'theory.getAllByUser' }, { unitId, ...payload }).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });
@@ -99,7 +99,7 @@ export class TheoryController {
   adminGetAllTheory(@Query() dto: GetCommonDto & { unitId?: string }, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'theory.getAllByAdmin' }, dto).subscribe({
       next: (result: any) => {
-        if (result.value) {
+        if (result.value || result.value == null) {
           res.status(200).send(result);
         } else {
           res.status(400).send({ message: result.error.message });
@@ -128,6 +128,9 @@ export class TheoryController {
   getOneTheory(@Param('id') id: string, @Res() res: FastifyReply) {
     this.client.send({ cmd: 'theory.getOne' }, id).subscribe({
       next: (result: any) => {
+        if (result.value == null) {
+          return res.status(404).send({ message: 'Model not found' });
+        }
         if (result.value) {
           res.status(200).send(result);
         } else {
