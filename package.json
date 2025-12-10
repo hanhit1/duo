@@ -6,7 +6,11 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "npm run build:all",
+    "build:gateway": "nest build api-gateway",
+    "build:users": "nest build users",
+    "build:learning": "nest build learning",
+    "build:all": "npm run build:gateway && npm run build:users && npm run build:learning",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
