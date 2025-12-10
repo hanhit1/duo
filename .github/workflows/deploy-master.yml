@@ -43,7 +43,7 @@ jobs:
           git reset --hard origin/master
           git pull origin master
           npm install
-          npm run build
+          npm run build:all
 
           pm2 restart users-service || pm2 start dist/apps/users/main.js --name users-service
 
