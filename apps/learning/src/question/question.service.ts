@@ -106,8 +106,10 @@ export class QuestionService extends CRUDService<Question> {
         matching: ['leftText', 'rightText', 'correctAnswers'],
         ordering: ['fragmentText', 'exactFragmentText'],
         gap: ['mediaUrl', 'correctAnswer'],
-        multiple_choice: ['mediaUrl', 'correctAnswer', 'answers'],
+        multiple_choice: ['mediaUrl', 'correctAnswer', 'answers', 'title'],
       };
+
+      const unsetFieldsMultipleChoice: Record<string, string> = {}; // delete mediaUrl or title if empty string
 
       // check if update typeQuestion
       if (updateQuestionDto.typeQuestion) {
@@ -137,6 +139,15 @@ export class QuestionService extends CRUDService<Question> {
             delete updateQuestionDto[key];
           }
         }
+
+        // if typeQuestion is MULTIPLE_CHOICE has title or mediaUrl is empty string, unset it
+
+        for (const key of ['mediaUrl', 'title']) {
+          if (updateQuestionDto[key] === '') {
+            unsetFieldsMultipleChoice[key] = '';
+            delete updateQuestionDto[key];
+          }
+        }
       }
 
       // process pairId for MATCHING question
@@ -159,7 +170,12 @@ export class QuestionService extends CRUDService<Question> {
         {
           _id: id,
         },
-        { ...updateQuestionDto },
+        {
+          ...updateQuestionDto,
+          ...(Object.keys(unsetFieldsMultipleChoice).length > 0
+            ? { $unset: unsetFieldsMultipleChoice }
+            : {}),
+        },
         { new: true },
       );
 
