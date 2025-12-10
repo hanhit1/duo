@@ -32,6 +32,9 @@ export class Question extends Document<ObjectId> {
   @Prop({ type: String })
   mediaUrl?: string; // type = MULTIPLE_CHOICE, GAP
 
+  @Prop({ type: String })
+  title?: string; // type = MULTIPLE_CHOICE
+
   @Prop({ type: Number, required: true })
   displayOrder: number;
 
@@ -42,6 +45,7 @@ export class Question extends Document<ObjectId> {
 const questionSchema = SchemaFactory.createForClass(Question);
 
 questionSchema.index({ lessonId: 1, displayOrder: 1 }, { unique: true });
+questionSchema.index({ title: 'text' });
 questionSchema.plugin(mongooseTimestamp);
 
 export { questionSchema };
