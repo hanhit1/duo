@@ -41,7 +41,9 @@ export class CreateQuestionDto {
 
   @ApiProperty()
   @ValidateIf(
-    (o) => o.typeQuestion === QuestionType.GAP || o.typeQuestion === QuestionType.MULTIPLE_CHOICE,
+    (o) =>
+      (o.typeQuestion === QuestionType.GAP || o.typeQuestion === QuestionType.MULTIPLE_CHOICE) &&
+      o.mediaUrl,
   )
   @IsNotEmpty()
   @IsString()
@@ -83,4 +85,10 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   @IsString({ each: true })
   answers?: string[];
+
+  @ApiProperty()
+  @ValidateIf((o) => o.typeQuestion === QuestionType.MULTIPLE_CHOICE && o.title)
+  @IsNotEmpty()
+  @IsString()
+  title?: string;
 }

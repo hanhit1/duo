@@ -45,7 +45,9 @@ export class UpdateQuestionDto {
   @ApiPropertyOptional()
   @IsOptional()
   @ValidateIf(
-    (o) => o.typeQuestion === QuestionType.GAP || o.typeQuestion === QuestionType.MULTIPLE_CHOICE,
+    (o) =>
+      (o.typeQuestion === QuestionType.GAP || o.typeQuestion === QuestionType.MULTIPLE_CHOICE) &&
+      o.mediaUrl,
   )
   @IsNotEmpty()
   @IsString()
@@ -90,4 +92,11 @@ export class UpdateQuestionDto {
   @IsNotEmpty()
   @IsString({ each: true })
   answers?: string[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @ValidateIf((o) => o.typeQuestion === QuestionType.MULTIPLE_CHOICE && o.title)
+  @IsNotEmpty()
+  @IsString()
+  title?: string;
 }
