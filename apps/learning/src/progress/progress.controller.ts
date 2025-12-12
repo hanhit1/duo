@@ -93,6 +93,32 @@ export class ProgressController {
       return err({ message: 'Current lesson not found.' });
     }
 
+    const progressCourseOrErr = await this.courseService.findOne({
+      _id: progress.course.toString(),
+    });
+
+    if (progressCourseOrErr.isErr()) {
+      return err({ message: progressCourseOrErr.error.message });
+    }
+
+    const progressCourse = progressCourseOrErr.value;
+
+    if (!progressCourse) {
+      return err({ message: 'Progress course not found.' });
+    }
+
+    const currentCourseOrErr = await this.courseService.findOne({ _id: courseId });
+
+    if (currentCourseOrErr.isErr()) {
+      return err({ message: currentCourseOrErr.error.message });
+    }
+
+    const currentCourse = currentCourseOrErr.value;
+
+    if (!currentCourse) {
+      return err({ message: 'Current course not found.' });
+    }
+
     return resultOrErr.match(
       (items: Unit[]) => {
         const result = items.map((unit) => {
@@ -105,7 +131,9 @@ export class ProgressController {
                     lesson.displayOrder > lessonCurrent.value.displayOrder &&
                     unit._id.toString() === unitCurrent.value._id.toString()
                       ? true
-                      : progress && unit.displayOrder > unitCurrent.value.displayOrder
+                      : progress &&
+                          unit.displayOrder > unitCurrent.value.displayOrder &&
+                          currentCourse.displayOrder >= progressCourse.displayOrder
                         ? true
                         : false;
                   return {
@@ -116,7 +144,10 @@ export class ProgressController {
           return {
             ...unit,
             lessons: lessonsWithProgress,
-            isLocked: progress && unit.displayOrder > unitCurrent.value.displayOrder,
+            isLocked:
+              progress &&
+              unit.displayOrder > unitCurrent.value.displayOrder &&
+              currentCourse.displayOrder >= progressCourse.displayOrder,
           };
         });
         return ok(toApiOkResp({ result, progress }));
