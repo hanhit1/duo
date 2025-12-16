@@ -13,7 +13,10 @@ export class User extends Document<ObjectId> {
   @Prop({ unique: true, sparse: true, required: true })
   email: string;
 
-  @Prop(String)
+  @Prop({
+    type: String,
+    default: 'https://i.pinimg.com/736x/52/f9/7a/52f97af25e75501db2adc194c49542b9.jpg',
+  })
   avatarImage?: string;
 
   @Prop(String)
