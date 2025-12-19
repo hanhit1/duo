@@ -99,7 +99,6 @@ export class CourseController {
     });
   }
 
-  @Permissions('course.view')
   @Get('admin/all-not-paginate')
   @ApiOperation({
     summary: 'Admin view a list of all courses without pagination to implement Course-combobox',
